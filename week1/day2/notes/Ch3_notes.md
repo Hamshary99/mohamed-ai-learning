@@ -176,7 +176,11 @@ When analyzing a promising model's mistakes, follow these simple steps:
 
 ## 10. Multilabel & Multioutput Classification
 
-In some cases we may want classifier to output multiple classes results for each instance. 
-- **Multilabel Classification**: Like there are 3 people, 2 of them are wearing a hat and one of them not, so the classifier will output [1, 1, 0].
+Until now, each instance only had a single target label. But what if we need multiple predictions for a single instance?
 
-- **Multioutput Classification**: is a generalization of multiclass classification where the classifier can output multiple classes for each instance. Like in the MNIST dataset, we can have a classifier that can output multiple digits for each instance.
+- **Multilabel Classification**: Outputs **multiple binary labels** (`0` or `1` / True or False) for one instance.
+  - *Your intuition (adapted)*: A classifier inspecting one photo and predicting multiple binary attributes: `[wearing_hat: 1, wearing_glasses: 1, smiling: 0]`.
+  - *MNIST Example*: Predicting two tags for a single digit: `[is_large (>=7): 0, is_odd: 1]`.
+
+- **Multioutput Classification** *(Multioutput-Multiclass)*: A generalization where the model outputs multiple labels, and **each label can have more than two values** (not just 0 or 1).
+  - *The MNIST Image Denoising Example*: The input is a noisy digit image. The model predicts **784 labels simultaneously** (one for each pixel), and each pixel label can take on any intensity value from `0` to `255`!

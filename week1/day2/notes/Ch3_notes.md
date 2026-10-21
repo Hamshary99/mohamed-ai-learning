@@ -129,9 +129,45 @@ $$\text{FPR} = \frac{FP}{TN + FP} = 1 - \text{Specificity (True Negative Rate)}$
 
 ## 8. Multiclass Classification (OvA vs. OvO)
 
-Mutliclass is comparing classes against each other and there are two strategies:
+- **What it is**: While binary classification predicts between 2 classes (e.g., "Is it a 5? Yes/No"), **multiclass classification** distinguishes between **more than two classes** (e.g., digits 0 through 9).
+- **How it helps**: Moves us from detecting just one specific digit to building a complete system that recognizes *any* handwritten digit.
 
-1. **One-Versus-All (OvA)**: Comparing $N$ models against each other, naturally the  predicted class is the one whose classifier outputs the highest score. For MNIST, train 10 classifiers
+Some algorithms handle multiclass natively (Random Forest, Naive Bayes), while strictly binary algorithms (SGD, Linear SVM) use two strategies:
 
-2. **One-Versus-One (OvO)**: $\frac{N(N-1)}{2}$ models. Preferred for SVMs (handles small datasets fast). For MNIST, train 45 classifiers! The class winning the most "duels" is selected.
+1. **One-Versus-All (OvA / OvR)**:
+   - Train $N$ binary classifiers (for MNIST: **10 classifiers**, one for each digit: 0-detector, 1-detector, etc.).
+   - To classify an image, get the decision score from all 10, and pick the class with the **highest score**.
+   - *Scikit-Learn's default for `SGDClassifier`.*
 
+2. **One-Versus-One (OvO)**:
+   - Train a binary classifier for every unique pair: $\frac{N(N-1)}{2}$ models (for MNIST: $\frac{10 \times 9}{2} =$ **45 classifiers**).
+   - Run all 45 "duels" on an image; the class winning the most duels is selected.
+   - *Best for algorithms that scale poorly with large data (like SVMs)*, because each classifier only trains on data for its specific 2 digits.
+
+> 💡 **Scikit-Learn Magic**: When you pass multiclass labels (`y_train`, 0–9) to a binary classifier like `SGDClassifier`, Scikit-Learn automatically detects it and runs **OvA** under the hood!
+
+> Some algorithms (such as Support Vector Machine classifiers) scale poorly with the
+size of the training set, so for these algorithms OvO is preferred. Training 45 SVMs on small subsets of data is much faster than training 10 SVMs on the entire dataset.
+
+### 💡 The `StandardScaler` Boost (Feature Scaling)
+- **What it does**: Rescales pixel values so they have an **average of 0** and a **spread (std dev) of 1**.
+- **Why it matters**: `SGDClassifier` is sensitive to scale. Without scaling, gradient descent zigzags inefficiently. With scaling, it marches straight to the minimum.
+- **The Result**: Just 2 lines of code (`StandardScaler().fit_transform(...)`) instantly boosts multiclass accuracy from **~86% $\to$ ~90%**!
+
+--- 
+
+## 9. Error Analysis
+
+When analyzing a promising model's mistakes, follow these simple steps:
+
+1. **Confusion Matrix (Normalized)**: 
+   - Don't just look at raw error counts—divide each row by the total images in that class to get **error rates**.
+   - Zero out the diagonal (correct predictions) so you only see the **errors**. Bright squares show the biggest problem areas!
+
+2. **Identify Systemic Confusion**: 
+   - Look for specific pairs the model constantly mixes up (e.g., confusing 3s with 5s, or 8s with 5s).
+
+3. **How to Reduce Classification Errors?**:
+   - **Get more data**: Collect more examples of the tricky, confused digits.
+   - **Feature Engineering**: Add features that make differences obvious (e.g., write a loop-counter: an 8 has two closed loops, 6 has one, 5 has zero).
+   - **Data Augmentation**: Artificially shift, rotate, or de-skew images so the model learns that a tilted 5 is still a 5.

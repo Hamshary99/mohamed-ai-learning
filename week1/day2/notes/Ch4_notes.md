@@ -17,7 +17,33 @@
 ---
 
 ## Gradient Descent
-*(Next up)*
+
+- **Goal**: Start with random weights $\mathbf{\theta}$ and gradually tweak them downhill until error (MSE) is minimized.
+- **The Learning Rate ($\eta$)**: The key hyperparameter controlling **step size**.
+  - **Too small**: Needs way too many iterations to reach the bottom.
+  - **Too large**: Jumps across the minimum, bounces around, or diverges.
+- **Feature Scaling**: Always scale features (e.g., `StandardScaler`). On unscaled data, gradient descent walks in slow, inefficient zigzags.
+
+---
+
+### Batch Gradient Descent
+
+- **Partial Derivative**: Asks: *"If I nudge $\theta_j$ a tiny bit, does the error go up or down, and by how much?"*
+- **Gradient Vector ($\nabla$)**: A vector packing all partial derivatives ($\theta_0, \theta_1, \dots$) together. Points **uphill** toward higher error.
+- **The Step Formula**:
+  $$\mathbf{\theta}^{(\text{next step})} = \mathbf{\theta} - \eta \nabla_{\mathbf{\theta}}\text{MSE}(\mathbf{\theta})$$
+  - We **subtract** because we want to move away from the top of the hill (**downhill** toward minimum error).
+- **Trade-off**:
+  - 👍 Scales very well with many features ($n$).
+  - 👎 Painfully slow on huge datasets ($m$) because it scans the **entire batch** of data for every single step.
+
+### Stochastic Gradient Descent
+
+### Mini-batch Gradient Descent
+
+
+
+
 
 ## Polynomial Regression
 

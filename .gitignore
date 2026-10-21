@@ -1,0 +1,24 @@
+# Virtual environment
+.venv/
+.venv*/
+
+# Jupyter
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local experiment outputs
+outputs/
+*.png
+!data/**

@@ -1,0 +1,14 @@
+# Hands-On ML sandbox — install with:
+#   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+numpy>=1.26
+pandas>=2.0
+matplotlib>=3.8
+scikit-learn>=1.4
+scipy>=1.11
+seaborn>=0.13
+jupyter>=1.0
+notebook>=7.0
+ipykernel>=6.0
+ipywidgets>=8.0
+xgboost>=2.0
+pillow>=10.0

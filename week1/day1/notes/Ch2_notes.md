@@ -20,6 +20,9 @@ What's more important than just building the model is figuring out the objective
 #### Fix:
 - Proactive monitoring and automated alerts on data freshness and output distribution.
 
+#### Notes:
+- In decoupled pipelines, steps pass data through independent intermediate storage. If an upstream step crashes, it doesn't harm the downstream. Without active monitoring, the down stream works with stale data.
+
 ---
 
 ## 2. Performance Measures: RMSE vs. MAE
@@ -55,6 +58,7 @@ Both metrics quantify how far predictions $\hat{y}$ deviate from true target val
 > 📝 **Side Note / Notebook Connection (Stable Splitting):**
 > In [scratch_ch2.ipynb](file:///c:/Users/amido/OneDrive/Desktop/lecs/ML/week1/day1/notebooks/scratch_ch2.ipynb), we saw that `np.random.seed(42)` keeps random splits consistent on static data, but breaks whenever new data is fetched.
 > A **hash-based identifier** (`crc32` on row index or geographic coordinates `longitude * 1000 + latitude`) ensures the test set stays stable across dataset updates without data leakage.
+> np.random(42) keeps data shuffling consistent only if the db never changes. Once adding new data it shifts indexes and ruins the split. In that sense, hash-based splitting is superior. It's a bit more expensive computationally but worth it in the long run.
 
 ---
 

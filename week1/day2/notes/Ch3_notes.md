@@ -174,7 +174,7 @@ When analyzing a promising model's mistakes, follow these simple steps:
 
 ---
 
-## 10. Multilabel &amp; Multioutput Classification
+## 10. Multilabel & Multioutput Classification
 
 In some cases we may want classifier to output multiple classes results for each instance. 
 - **Multilabel Classification**: Like there are 3 people, 2 of them are wearing a hat and one of them not, so the classifier will output [1, 1, 0].

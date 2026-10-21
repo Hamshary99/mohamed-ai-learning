@@ -107,3 +107,17 @@ $$\text{TPR (Recall)} = \frac{TP}{TP + FN}$$
 $$\text{FPR} = \frac{FP}{TN + FP} = 1 - \text{Specificity (True Negative Rate)}$$
 
 ### ROC AUC (Area Under the Curve)
+
+- Compresses the entire ROC curve into a single score:
+  - **$1.0$**: Perfect classifier (hugs the top-left corner).
+  - **$0.5$**: Purely random classifier (the diagonal dashed line).
+  - **SGDClassifier Score**: $\approx \mathbf{0.9605}$ (96.05%).
+
+### Key Takeaways from the ROC Curve
+
+1. **The Core Trade-off**: Increasing Recall (TPR) inevitably increases False Positives (FPR). To catch more true 5s, the classifier must accept more non-5s mistakenly classified as 5s.
+2. **The Ideal Goal**: The top-left corner $(\text{FPR}=0, \text{TPR}=1)$ represents 100% Recall with 0 False Alarms.
+3. **Rule of Thumb (ROC vs. PR Curve)**:
+   - **Use PR (Precision-Recall) Curve**: When the positive class is **rare / imbalanced** (like our 5-detector where only 10% are 5s, fraud, disease) or when avoiding false alarms (FP) is critical.
+   - **Use ROC Curve**: When classes are roughly **balanced** or when false negatives (FN) are much worse than false positives.
+   *(Notice: The ROC curve looks deceptively great at 96% AUC because the 90% non-5s make the denominator $TN + FP$ huge, keeping FPR small!)*

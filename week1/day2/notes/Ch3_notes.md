@@ -70,4 +70,40 @@ Instead of looking at the full matrix, we compress model performance into focuse
   $$F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}} = \frac{TP}{TP + \frac{FP + FN}{2}}$$
   **Harmonic mean** balancing precision and recall into a single metric. Unlike a simple arithmetic average, the harmonic mean gives much more weight to low values—so $F_1$ is only high if *both* precision and recall are high.
 
-  > 
+  > $F_1$ really favors that precision is as similar as to recalls, but some applications need a significant precision metrics or vice versa. 
+
+**Favoring Recalls example**: suppose you train a classifier to detect shoplifters on surveillance images: it is probably fine if your classifier has only 30% precision as long as it has 99% recall (it will raise many false alarms, but it will not miss many shoplifters).
+
+**Favoring Precision example**: suppose you train a classifier to detect good videos for kids : it is probably fine if your classifier has only 30% recall as long as it has 99% precision (it will miss many good videos but it will not classify too many bad  videos as good).
+
+**The Trade-off**: You cannot maximize both simultaneously; increasing precision lowers recall and vice-versa.
+
+---
+
+## 6. The Precision/Recall Trade-off & Threshold Tuning
+
+
+Algorithms like `SGDClassifier` imposes a computing score that if it exceeds a threshold the instance will be predicted as positive else it will be predicted as negative.
+
+As we increase the threshold, the precision increases and the recall decreases, and vice versa.
+
+$$Threshold \Uparrow \implies Precision \Uparrow, \quad Recall \Downarrow$$
+
+$$Threshold \Downarrow \implies Precision \Downarrow, \quad Recall \Uparrow$$
+
+
+>**The "99% Precision" Trap**: Anyone can create a 99% precision classifier by setting an extremely high threshold. Always ask: *"At what recall?"* A 99% precision model with 0.1% recall is useless.
+
+> ⚠️ **Golden Rule:** **Accuracy is often misleading on skewed/imbalanced datasets.** Never rely on accuracy alone. Never rely on raw accuracy alone; look at confusion matrices, precision, recall, and ROC AUC.
+
+---
+
+## 7. The ROC Curve &amp; ROC AUC
+
+The receiver operating characteristic (ROC) curve plotting **True Positive Rate (Recall)** against the **False Positive Rate (FPR)** across all possible thresholds.
+
+$$\text{TPR (Recall)} = \frac{TP}{TP + FN}$$
+
+$$\text{FPR} = \frac{FP}{TN + FP} = 1 - \text{Specificity (True Negative Rate)}$$
+
+### ROC AUC (Area Under the Curve)

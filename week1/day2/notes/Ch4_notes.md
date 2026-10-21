@@ -40,6 +40,12 @@
 > To find a good learning rate, you can use grid search
 
 ### Stochastic Gradient Descent
+- It picks random points and calculates the gradient based on that single instance.
+- It's very fast.
+- It's noisy and can bounce around the minimum, relying on the average to make it through.
+- It's good for large datasets that don't fit in RAM.
+
+One workaround is reducing the learning rate
 
 ### Mini-batch Gradient Descent
 

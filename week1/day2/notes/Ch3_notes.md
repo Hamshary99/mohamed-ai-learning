@@ -170,4 +170,13 @@ When analyzing a promising model's mistakes, follow these simple steps:
 3. **How to Reduce Classification Errors?**:
    - **Get more data**: Collect more examples of the tricky, confused digits.
    - **Feature Engineering**: Add features that make differences obvious (e.g., write a loop-counter: an 8 has two closed loops, 6 has one, 5 has zero).
-   - **Data Augmentation**: Artificially shift, rotate, or de-skew images so the model learns that a tilted 5 is still a 5.
+   - **Data Augmentation**: Artificially shift, rotate, or de-skew images so the model learns that a tilted 5 is still a 5.
+
+---
+
+## 10. Multilabel &amp; Multioutput Classification
+
+In some cases we may want classifier to output multiple classes results for each instance. 
+- **Multilabel Classification**: Like there are 3 people, 2 of them are wearing a hat and one of them not, so the classifier will output [1, 1, 0].
+
+- **Multioutput Classification**: is a generalization of multiclass classification where the classifier can output multiple classes for each instance. Like in the MNIST dataset, we can have a classifier that can output multiple digits for each instance.

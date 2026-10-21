@@ -1,8 +1,8 @@
-# Chapter 4 — Training Models
+# Chapter 4. Training Models
 
 ---
 
-## 1. Linear Regression
+## Linear Regression
 
 ### 💡 What Should I Take Away From This?
 - **The Model**: A linear model makes a prediction $\hat{y}$ by calculating a weighted sum of the input features, plus a bias constant (intercept):
@@ -15,7 +15,7 @@
 
 ---
 
-### 1.1 The Normal Equation
+### The Normal Equation
 
 $$\hat{\mathbf{\theta}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
 
@@ -28,7 +28,7 @@ $$\hat{\mathbf{\theta}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}
 
 ---
 
-### 1.2 Computational Complexity
+### Computational Complexity
 
 ### 💡 What Should I Take Away From This?
 - **Scaling with Features ($n$)**:
@@ -38,37 +38,41 @@ $$\hat{\mathbf{\theta}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}
 - **Scaling with Training Instances ($m$)**:
   - Both methods scale linearly ($\mathcal{O}(m)$) with instances, but **they require loading the entire dataset into RAM at once**.
   - **The Limitation**: If your dataset has millions of instances that exceed your computer's memory, neither closed-form method can be used.
-- **Why this leads to Gradient Descent (Section 2)**:
+- **Why this leads to Gradient Descent**:
   - When you have huge datasets or hundreds of thousands of features, we leave direct formulas behind and use **Gradient Descent**, which trains step-by-step and scales easily.
 
 ---
 
-## 2. Gradient Descent *(Next Up)*
-### 2.1 Batch Gradient Descent
-### 2.2 Stochastic Gradient Descent
-### 2.3 Mini-batch Gradient Descent
+## Gradient Descent *(Next Up)*
+### Batch Gradient Descent
+### Stochastic Gradient Descent
+### Mini-batch Gradient Descent
 
 ---
 
-## 3. Polynomial Regression *(Upcoming)*
+## Polynomial Regression *(Upcoming)*
 
 ---
 
-## 4. Learning Curves *(Upcoming)*
-### 4.1 The Bias/Variance Trade-Off
+## Learning Curves *(Upcoming)*
+### The Bias/Variance Trade-Off
 
 ---
 
-## 5. Regularized Linear Models *(Upcoming)*
-### 5.1 Ridge Regression
-### 5.2 Lasso Regression
-### 5.3 Elastic Net
-### 5.4 Early Stopping
+## Regularized Linear Models *(Upcoming)*
+### Ridge Regression
+### Lasso Regression
+### Elastic Net
+### Early Stopping
 
 ---
 
-## 6. Logistic Regression *(Upcoming)*
-### 6.1 Estimating Probabilities
-### 6.2 Training and Cost Function
-### 6.3 Decision Boundaries
-### 6.4 Softmax Regression
+## Logistic Regression *(Upcoming)*
+### Estimating Probabilities
+### Training and Cost Function
+### Decision Boundaries
+### Softmax Regression
+
+---
+
+## Exercises *(Upcoming)*

@@ -37,6 +37,8 @@
   - 👍 Scales very well with many features ($n$).
   - 👎 Painfully slow on huge datasets ($m$) because it scans the **entire batch** of data for every single step.
 
+> To find a good learning rate, you can use grid search
+
 ### Stochastic Gradient Descent
 
 ### Mini-batch Gradient Descent

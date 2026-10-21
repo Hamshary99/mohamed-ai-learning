@@ -100,64 +100,28 @@ $$Threshold \Downarrow \implies Precision \Downarrow, \quad Recall \Uparrow$$
 
 ## 7. The ROC Curve & ROC AUC
 
-The **Receiver Operating Characteristic (ROC)** curve plots the **True Positive Rate (Recall / Sensitivity)** against the **False Positive Rate (FPR / Fall-out)** across all possible decision thresholds.
+The receiver operating characteristic (ROC) curve plots the **True Positive Rate (Recall)** against the **False Positive Rate (FPR)** across all possible thresholds.
 
-### 1. Key Formulas
+$$\text{TPR (Recall)} = \frac{TP}{TP + FN}$$
 
-- **True Positive Rate (Recall)**:
-  $$\text{TPR} = \frac{TP}{TP + FN}$$
-  *Fraction of actual 5s correctly found.*
+$$\text{FPR} = \frac{FP}{TN + FP} = 1 - \text{Specificity (True Negative Rate)}$$
 
-- **False Positive Rate (Fall-out)**:
-  $$\text{FPR} = \frac{FP}{TN + FP} = 1 - \text{Specificity}$$
-  *Fraction of actual non-5s wrongly flagged as 5s.*
-
-- **Specificity (True Negative Rate / TNR)**:
-  $$\text{TNR} = \frac{TN}{TN + FP}$$
-  *Fraction of actual non-5s correctly identified.*
+- **The Trade-off**: Increasing Recall (TPR) inevitably increases False Positives (FPR).
+- **The Ideal Goal**: The top-left corner (100% recall, 0% false alarms).
+- **ROC AUC**: Area Under Curve from $0.5$ (pure coin flip) to $1.0$ (perfect). Our SGD gets $\approx \mathbf{0.9605}$.
 
 ---
 
-### 2. ROC AUC (Area Under the Curve)
-
-ROC AUC compresses the entire curve into a single scalar to easily compare models:
-- **$1.0$**: Perfect classifier (hugs the top-left corner).
-- **$0.5$**: Purely random classifier (the 45° diagonal dashed line).
-- **`SGDClassifier` Score**: $\approx \mathbf{0.9605}$ (96.05%).
+> ⚠️ **Rule of Thumb (PR vs. ROC Curve):**
+> Prefer the **PR curve** whenever the positive class is rare (imbalanced data) or when you care more about false alarms (FPs). Prefer the **ROC curve** otherwise.
+>
+> *Why does ROC look deceptively good on MNIST?* Because 90% of images are non-5s, making the denominator $TN + FP$ huge in the FPR equation. Even with hundreds of false alarms, FPR stays tiny. In contrast, the PR curve ($\frac{TP}{TP + FP}$) makes it clear that precision drops when catching more 5s.
 
 ---
 
-### 3. The Deep Dive: Why the ROC Curve Can Deceive You (ROC vs. PR Curve)
+### Comparing Models: `SGDClassifier` vs. `RandomForestClassifier`
 
-> [!TIP]
-> **Golden Rule of Thumb**:
-> Prefer the **Precision-Recall (PR) curve** whenever the positive class is **rare/imbalanced**, or when you care more about **false alarms (FP)** than missed detections (FN). Use the **ROC curve** otherwise.
+- **`SGDClassifier`**: Uses `decision_function()` (raw scores) $\implies \text{ROC AUC} \approx 0.960$.
+- **`RandomForestClassifier`**: Lacks `decision_function()`, so we use `predict_proba()` (probability of positive class: `[:, 1]`) $\implies \text{ROC AUC} \approx \mathbf{0.998}$.
+- **Result**: Random Forest hugs the top-left corner much tighter, achieving **$\approx 99\%$ precision** and **$\approx 86.6\%$ recall**.
 
-#### Why does the ROC curve look so deceptively good on MNIST?
-Look at the formulas' denominators:
-1. **In the ROC curve**, the horizontal axis is $\text{FPR} = \frac{FP}{\mathbf{TN + FP}}$.
-   - In MNIST, 90% of instances are non-5s, so the denominator $\mathbf{TN + FP} \approx 54{,}000$ images!
-   - Even if the model makes **$1{,}000$ false alarms ($FP$)**, the FPR is only $\frac{1000}{54000} \approx \mathbf{1.8\%}$.
-   - Because 1.8% is practically hugging the y-axis, the ROC curve arches way up into the top-left corner, giving an inflated **0.96 AUC**.
-
-2. **In the PR curve**, the vertical axis is $\text{Precision} = \frac{TP}{\mathbf{TP + FP}}$.
-   - The total number of real 5s is only $\sim 5{,}400$.
-   - If $TP \approx 3{,}500$ and we have those same $1{,}000$ false alarms ($FP$), the denominator is $\mathbf{4{,}500}$.
-   - Precision drops to $\frac{3500}{4500} \approx \mathbf{77.7\%}$!
-   - The PR curve immediately exposes that nearly **1 in 4 images** flagged as a 5 is actually wrong!
-
----
-
-### 4. Comparing Classifiers: `SGDClassifier` vs. `RandomForestClassifier`
-
-To find a better model, we test a `RandomForestClassifier`:
-
-| Feature / Metric | `SGDClassifier` | `RandomForestClassifier` |
-| :--- | :--- | :--- |
-| **Output Type** | Raw decision scores via `decision_function()` | Class probabilities via `predict_proba()` |
-| **ROC Input** | `y_scores` | Probability of positive class: `y_probas[:, 1]` |
-| **ROC AUC** | $\approx 0.960$ | $\approx \mathbf{0.998}$ |
-| **Precision** | $\approx 83.7\%$ | $\approx \mathbf{99.0\%}$ |
-| **Recall** | $\approx 65.1\%$ | $\approx \mathbf{86.6\%}$ |
-
-> **Conclusion**: The Random Forest's ROC curve stays much closer to the top-left corner, dramatically reducing false alarms while catching significantly more 5s.

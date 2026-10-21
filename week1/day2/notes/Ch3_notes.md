@@ -13,4 +13,17 @@ When **NOT** to shuffle is for time based data like history or stocks.
 ## Training a Binary Classifier
 
 Binary classifier is predicting two sets of classes. (True/False).
-**SGDClassifier**: Handles classification instances one by one across the data set and it works great with large sets of data. Though it relies on the shuffle of 42 rounds (np.random)
+
+**SGDClassifier**: Handles classification instances one by one across the data set and it works great with large sets of data. and well-suited for **online learning**.Though it relies on the shuffle of 42 rounds (np.random_state=42).
+
+---
+
+## Performance Measures & Why Accuracy Fails
+
+Performance measuring here could be more tricky than the linear regression performance tuning.
+
+ Evaluating `SGDClassifier` using 3-fold cross-validation gives **~95-96% accuracy**.
+- **The Trap**: Only ~10% of the images are 5s (90% are not 5s). A dumb classifier (`DummyClassifier`) that *always* predicts `False` ("never-5") achieves **~90% accuracy**!
+
+> ⚠️ **Golden Rule:** **Accuracy is often misleading on skewed/imbalanced datasets.** Never rely on accuracy alone.
+

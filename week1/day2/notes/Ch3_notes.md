@@ -125,3 +125,13 @@ $$\text{FPR} = \frac{FP}{TN + FP} = 1 - \text{Specificity (True Negative Rate)}$
 - **`RandomForestClassifier`**: Lacks `decision_function()`, so we use `predict_proba()` (probability of positive class: `[:, 1]`) $\implies \text{ROC AUC} \approx \mathbf{0.998}$.
 - **Result**: Random Forest hugs the top-left corner much tighter, achieving **$\approx 99\%$ precision** and **$\approx 86.6\%$ recall**.
 
+---
+
+## 8. Multiclass Classification (OvA vs. OvO)
+
+Mutliclass is comparing classes against each other and there are two strategies:
+
+1. **One-Versus-All (OvA)**: Comparing $N$ models against each other, naturally the  predicted class is the one whose classifier outputs the highest score. For MNIST, train 10 classifiers
+
+2. **One-Versus-One (OvO)**: $\frac{N(N-1)}{2}$ models. Preferred for SVMs (handles small datasets fast). For MNIST, train 45 classifiers! The class winning the most "duels" is selected.
+

@@ -48,10 +48,17 @@
 One workaround is reducing the learning rate
 
 ### Mini-batch Gradient Descent
+Minibatch GD computes the gradients on small random sets of instances.
+- You can get performance boost 
+- Progress of gradient is less erratic than sophisticated one.
+- Even with large data it may approach the minima but never escaping the local minima. So mini batch might stop where others might keep walking to approach the minima.
 
-
-
-
+Algorithm Large m Out-of-core support Large n Hyperparams Scaling required Scikit-Learn
+Normal Equation Fast No Slow 0 No n/a
+SVD Fast No Slow 0 No LinearRegression
+Batch GD Slow No Fast 2 Yes SGDRegressor
+Stochastic GD Fast Yes Fast ≥2 Yes SGDRegressor
+Mini-batch GD Fast Yes Fast ≥2 Yes SGDRegressor
 
 ## Polynomial Regression
 

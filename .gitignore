@@ -17,8 +17,12 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+*.bak
 
 # Local experiment outputs
 outputs/
 *.png
 !data/**
+
+# Local external tools / binaries
+.tools/

@@ -65,13 +65,92 @@ One workaround is reducing the learning rate
 | **Stochastic GD** | Fast | **Yes** | Fast | $\ge 2$ (schedule) | **Yes** | `SGDRegressor` |
 | **Mini-batch GD** | Fast | **Yes** | Fast | $\ge 2$ (+ batch size) | **Yes** | `SGDRegressor` (`partial_fit`) |
 
+---
 
 ## Polynomial Regression
 
+Even if the data isn't a simple straight line, we can use linear regression to model a linear relation out of non linear one.
+
+Though some polynomial regression can lead to great degree of overfitting.
+
+---
+
 ## Learning Curves
+
+We used cross-validation to get an estimate of a model’s generalization performance.
+
+Another way it to look at the plotted learning curve for both training and validation set.
+
+> Bias
+This part of the generalization error is due to wrong assumptions, such as assuming
+that the data is linear when it is actually quadratic.
+
+> Variance
+This part is due to the model’s excessive sensitivity to small variations in the
+training data.
+
+> Irreducible error
+This part is due to the noisiness of the data itself.
+
+---
 
 ## Regularized Linear Models
 
+Regularization combats overfitting, so for example when polynomial regression overfits the data, we reduce the degree of the polynomial.
+
+---  
+### Ridge Regression
+- A linear model that adds a penalty term to the cost function to reduce the magnitude of the weights. Thus regulazing the linear model.
+- **Cost Function**: $J(\theta) = \text{MSE}(\theta) + \alpha \sum_{i=1}^{n} \theta_i^2$
+
+### Lasso Regression
+- **Penalty**: Uses the $\ell_1$ norm (absolute values) instead of $\ell_2$:
+  $$J(\mathbf{\theta}) = \text{MSE}(\mathbf{\theta}) + \alpha \sum_{i=1}^{n} |\theta_i|$$
+- **Automatic Feature Selection**: Drives unimportant feature weights completely to **0**, creating a **sparse model**.
+- **Scikit-Learn**: `from sklearn.linear_model import Lasso` (`Lasso(alpha=0.1)`).
+
+### Elastic Net
+- It's the middle ground between Ridge and Lasso Regression. Mixing both regularization terms.
+
+$$J(\mathbf{\theta}) = \text{MSE}(\mathbf{\theta}) + r_1 \sum_{i=1}^{n} |\theta_i| + r_2 \sum_{i=1}^{n} \theta_i^2$$
+
+> Ridge is a good default, but if you suspect that only a few features are actually useful, you should prefer Lasso or Elastic Net since they tend to reduce the useless features’ weights down to zero.
+
+### Early Stopping
+- A "free lunch" regularization technique for iterative learning algorithms (like Gradient Descent).
+- **How it works**: Monitor the validation error during training and **stop training as soon as the validation error reaches a minimum** (before overfitting starts pushing it back up).
+- **Tip (Noisy Curves)**: With Stochastic/Mini-batch GD, wait until the validation error hasn't improved for a set number of rounds (patience), then roll back the model weights to the minimum point.
+
+---
+
 ## Logistic Regression
 
-## Exercises
+It's estimating if the instances belongs to a said classification. Exceeding 50% then it counts it as belonging to the said classification.
+
+### Decision Boundaries 
+- **The "Line in the Sand"**: The exact threshold where the model is having a 50/50 existential crisis ($P = 0.5$).
+  - One side ($P > 0.5$): Classified as Class 1.
+  - Other side ($P < 0.5$): Classified as Class 0.
+- **Dimensionality**:
+  - 1 feature $\to$ A single cutoff point (e.g., petal width $= 1.66$ cm).
+  - 2 features $\to$ A straight line dividing the 2D plane.
+  - Multiclass (Softmax) $\to$ Linear borders slicing space between classes.
+- **The 2D Decision Boundary Equation** (Why that line formula works):
+  - Model predicts probability $P = \sigma(\theta_0 + \theta_1 x_0 + \theta_2 x_1)$.
+  - The 50/50 boundary is where $P = 0.5$, which happens when $\theta_0 + \theta_1 x_0 + \theta_2 x_1 = 0$.
+  - Solving for $x_1$ (y-axis, Petal width) gives the straight line equation:
+    $$x_1 = -\frac{\theta_1 x_0 + \theta_0}{\theta_2} = -\frac{\text{coef}[0][0] \cdot x_0 + \text{intercept}[0]}{\text{coef}[0][1]}$$
+- *Fun rule*: Think of it like a strict club bouncer: $1.661$ cm? *"Welcome to the Virginica VIP lounge!"* $1.659$ cm? *"Sorry buddy, you're Not Virginica tonight."*
+
+### Softmax Regression (Multinomial Logistic Regression)
+
+The logistic regression can support classifying to several classes per instance. Simply by taking an instamce x and scoring how close that instance to the available classes.
+
+Just like the Logistic Regression classifier, the Softmax Regression classifier predicts
+the class with the highest estimated probability.
+
+> Softmax is multiclass not multi-output so it takes the highest class's score. 
+
+
+
+---

@@ -29,6 +29,7 @@ from src.train import (
 
 from src.evaluate import (
     build_leaderboard,
+    plot_model_arena,
     compare_tuned_models,
     evaluate_confusion_matrix,
     extract_feature_importances,
@@ -49,6 +50,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=str, default="models", help="Directory to save trained models")
     parser.add_argument("--reports-dir", type=str, default="reports", help="Directory to save figures and reports")
     parser.add_argument("--random-state", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--show-plots", action=argparse.BooleanOptionalAction, default=True, help="Display interactive plot popups")
     return parser.parse_args()
 
 
@@ -93,11 +95,25 @@ def main() -> None:
     print(leaderboard.to_string(index=False))
     print()
 
+    # Visual Leaderboard Plot with Overfit Gap analysis
+    plot_model_arena(
+        leaderboard,
+        save_fig_path=os.path.join(args.reports_dir, "arena_benchmark.png"),
+        show_plot=args.show_plots
+    )
+
     # =========================================================================
     # STEP 3: In-Depth Diagnostic Analysis (src.evaluate)
     # =========================================================================
     print("[*] Running Out-of-Fold Error Diagnostics on Random Forest...")
-    cm, breakdown = evaluate_confusion_matrix(models["Random Forest"], X_train, y_train, cv_splits=5)
+    cm, breakdown = evaluate_confusion_matrix(
+        models["Random Forest"],
+        X_train,
+        y_train,
+        cv_splits=5,
+        save_fig_path=os.path.join(args.reports_dir, "confusion_matrix.png"),
+        show_plot=args.show_plots
+    )
     print(f"    - True Negatives (Perished):  {breakdown['True Negatives (Correct Perished)']}")
     print(f"    - True Positives (Survived):  {breakdown['True Positives (Correct Survived)']}")
     print(f"    - Type I Error (False Pos):   {breakdown['False Positives (Type I Error)']}")
@@ -138,11 +154,18 @@ def main() -> None:
         champion_estimator,
         feature_names=list(X_train.columns),
         top_n=10,
-        save_fig_path=os.path.join(args.reports_dir, "feature_importance.png")
+        save_fig_path=os.path.join(args.reports_dir, "feature_importance.png"),
+        show_plot=args.show_plots
     )
 
-    # Evaluate on pristine held-out validation set (179 rows)
-    evaluate_held_out_set(champion_estimator, X_val, y_val)
+    # Evaluate on pristine held-out validation set (179 rows) and export ROC curve
+    evaluate_held_out_set(
+        champion_estimator,
+        X_val,
+        y_val,
+        save_fig_path=os.path.join(args.reports_dir, "roc_curve.png"),
+        show_plot=args.show_plots
+    )
 
     # Save model artifact
     artifact_path = os.path.join(args.output_dir, "champion_model.joblib")

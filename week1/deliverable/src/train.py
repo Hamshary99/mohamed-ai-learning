@@ -55,7 +55,6 @@ def run_model_arena(
 
     for name, model in models.items():
         print(f"[*] Benchmarking {name}...")
-        jobs = 1 if "XGB" in name else -1
         cv = cross_validate(
             estimator=model,
             X=X_train,
@@ -63,7 +62,7 @@ def run_model_arena(
             cv=skf,
             scoring=scoring,
             return_train_score=True,
-            n_jobs=jobs
+            n_jobs=1
         )
 
         results[name] = {
@@ -114,7 +113,7 @@ def tune_candidate_models(
     cv_splits: int = 5,
     scoring: str = "f1",
     random_state: int = 42,
-    n_jobs: int = -1
+    n_jobs: int = 1
 ) -> Dict[str, Dict[str, Any]]:
     """
     Step 3B: Multi-model parallel GridSearchCV optimization.
@@ -127,13 +126,12 @@ def tune_candidate_models(
             continue
 
         print(f"[*] Tuning {name} with GridSearchCV...")
-        jobs = 1 if "XGB" in name else n_jobs
         grid_search = GridSearchCV(
             estimator=model,
             param_grid=param_grids[name],
             cv=skf,
             scoring=scoring,
-            n_jobs=jobs,
+            n_jobs=n_jobs,
             refit=True
         )
         grid_search.fit(X_train, y_train)
@@ -157,13 +155,23 @@ def select_champion_model(
     """
     champion_name = max(tuning_results, key=lambda k: tuning_results[k]["best_score"])
     champion_data = tuning_results[champion_name]
-    print(f"[*] Overall Champion Selected: {champion_name} (F1: {champion_data['best_score']:.4f})")
+    best_params = champion_data["best_params"]
+    best_score = float(champion_data["best_score"])
+
+    print("\n" + "=" * 65)
+    print(f"      [CHAMPION] OFFICIAL CHAMPION MODEL: {champion_name.upper()}")
+    print("=" * 65)
+    print(f"  * Cross-Validated F1-Score: {best_score:.4f}")
+    print("  * Winning Hyperparameters:")
+    for param, val in best_params.items():
+        print(f"      - {param}: {val}")
+    print("=" * 65 + "\n")
 
     return (
         champion_name,
         champion_data["best_estimator"],
-        champion_data["best_params"],
-        champion_data["best_score"]
+        best_params,
+        best_score
     )
 
 
@@ -173,7 +181,7 @@ def tune_champion_model(
     model_name: str = "Random Forest",
     cv_splits: int = 5,
     random_state: int = 42,
-    n_jobs: int = -1
+    n_jobs: int = 1
 ) -> Tuple[BaseEstimator, Dict[str, Any], float]:
     """
     Step 3C (Dedicated): Configurable single-model tuning (defaults to Random Forest).

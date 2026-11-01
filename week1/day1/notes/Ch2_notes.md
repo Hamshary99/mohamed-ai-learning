@@ -32,8 +32,6 @@ Both metrics quantify how far predictions $\hat{y}$ deviate from true target val
 - **RMSE (Root Mean Square Error):** Squares the errors, averages them, and takes the square root. Large errors are penalized much more heavily because errors are squared before averaging. Measured in the same units as the target variable.
 - **MAE (Mean Absolute Error):** The average of the absolute differences $|y - \hat{y}|$. Treats all errors the same.
 
-> 📝 **Side Note / Correction (MAE Definition):**
-> In the original notes, MAE was labeled *(Mean Average Error)*. The correct term is **Mean Absolute Error** (the "A" stands for **Absolute** values $|y - \hat{y}|$; "Mean Average" would be redundant since mean and average are synonyms).
 
 ### When to Use Which:
 - Use **RMSE by default** (preferred for regression when errors are roughly bell-shaped / normally distributed).
@@ -55,9 +53,6 @@ Both metrics quantify how far predictions $\hat{y}$ deviate from true target val
 - **Definition:** Divide the population into homogeneous subgroups (**strata**), then sample from each stratum in proportion to its representation in the full dataset.
 - Guarantees that the test set accurately mirrors the overall population across critical attributes (e.g. `median_income` categories).
 
-> 📝 **Side Note / Notebook Connection (Stable Splitting):**
-> In [scratch_ch2.ipynb](file:///c:/Users/amido/OneDrive/Desktop/lecs/ML/week1/day1/notebooks/scratch_ch2.ipynb), we saw that `np.random.seed(42)` keeps random splits consistent on static data, but breaks whenever new data is fetched.
-> A **hash-based identifier** (`crc32` on row index or geographic coordinates `longitude * 1000 + latitude`) ensures the test set stays stable across dataset updates without data leakage.
 > np.random(42) keeps data shuffling consistent only if the db never changes. Once adding new data it shifts indexes and ruins the split. In that sense, hash-based splitting is superior. It's a bit more expensive computationally but worth it in the long run.
 
 ---
@@ -95,8 +90,6 @@ Machine Learning algorithms generally cannot handle missing values (`NaN`). Thre
 Machine Learning models require numerical inputs, so categorical text must be converted:
 1. **Ordinal Encoding (`OrdinalEncoder`):** Maps ordered categories to integer ranks (e.g. `bad=0, mid=1, good=2, best=3`).
 
-> 📝 **Side Note / Correction (Ordinal vs. Ordinary):**
-> In the original notes, this was written as *(Ordinary encoding)*. The formal ML term is **Ordinal Encoding** (`OrdinalEncoder` in Scikit-Learn), derived from the mathematical word *order*.
 
 2. **One-Hot Encoding (`OneHotEncoder`):** Creates binary indicator columns ($0$ or $1$) for each unique category. Best when categories are unordered (nominal) and category cardinality is small (e.g. `ocean_proximity`).
 3. **Embeddings:** When a categorical feature has hundreds or thousands of unique values (high cardinality), one-hot encoding produces massive, sparse tables. Embeddings project categories into dense, low-dimensional vectors where semantic similarities can be learned.

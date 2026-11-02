@@ -168,3 +168,53 @@ Used when you want to compare whole sentences and set coordinates for the **enti
 * **Word2Vec:** Learns by playing fill-in-the-blank on small sliding text windows. Produces static word coordinates.
 * **GloVe:** Learns by counting how often words appear together across the entire corpus. Also produces static word coordinates.
 * **Sentence Embeddings (SBERT):** Reads full sentences through a Transformer to build one contextual meaning fingerprint per sentence.
+
+---
+
+## 10. Vector Similarity: Cosine Similarity vs. Dot Product
+
+Once sentences or documents are converted into vector embeddings, search engines and vector databases need a metric to determine which vectors are closest to each other.
+
+### 1. Cosine Similarity (Angle ONLY)
+* **How it works:** It looks strictly at the **angle** between two vector arrows and completely ignores how long they are (magnitude invariant).
+* **Score range:** $-1.0$ to $+1.0$ ($+1.0$ means pointing in identical directions, $0.0$ means orthogonal/unrelated, $-1.0$ means diametrically opposite).
+* **Mathematical Formula:**
+  $$\text{Cosine Similarity}(A, B) = \frac{A \cdot B}{\|A\| \cdot \|B\|} = \frac{\sum_{i=1}^d A_i B_i}{\sqrt{\sum_{i=1}^d A_i^2} \cdot \sqrt{\sum_{i=1}^d B_i^2}}$$
+* **The Upside (Fairness):** Because it divides out vector length, magnitude does not skew results. A short query or 5-word sentence can closely match a detailed paragraph if they point in the same semantic direction.
+
+---
+
+### 2. Dot Product (Angle AND Length)
+* **How it works:** It multiplies corresponding vector components directly and sums them:
+  $$A \cdot B = \sum_{i=1}^d A_i B_i = \|A\| \cdot \|B\| \cdot \cos(\theta)$$
+* **Score range:** $(-\infty, +\infty)$ (unbounded).
+* **The Catch:** Because it does not divide out vector lengths, a gigantic arrow (e.g., a vector with large magnitude) can produce an artificially massive dot product score simply because it has bigger raw numbers, even if its directional alignment is slightly off.
+
+---
+
+### 3. The Engineering "Aha!" Moment ($L_2$ Normalization)
+
+Why do production vector databases (Pinecone, ChromaDB, FAISS, Milvus) care so much about this difference?
+
+If you **normalize** all your vector arrows upfront so every single arrow has an exact length of $1$ (called **unit length** or **$L_2$ normalization**):
+$$\|A\| = 1 \quad \text{and} \quad \|B\| = 1$$
+
+Then look at the Cosine formula again:
+$$\text{Cosine Similarity}(A, B) = \frac{A \cdot B}{1 \times 1} = A \cdot B = \text{Dot Product}$$
+
+* **The Takeaway:** When embeddings are $L_2$-normalized, **Cosine Similarity and Dot Product produce identical rankings**.
+* **Why Vector Databases Do This:**
+  * Calculating cosine similarity on raw vectors requires square roots and division on every single search query.
+  * Normalizing vectors once during ingestion allows the database to run pure dot products at search time: simple hardware multiplication and addition (SIMD/BLAS), which is orders of magnitude faster.
+
+---
+
+### Comparison Summary
+
+| Feature | Cosine Similarity | Dot Product | Normalized Dot Product ($L_2$) |
+| :--- | :--- | :--- | :--- |
+| **What it measures** | Direction / Angle only | Direction + Magnitude | Direction only (Identical to Cosine) |
+| **Formula** | $\frac{A \cdot B}{\|A\| \cdot \|B\|}$ | $A \cdot B$ | $A \cdot B$ (where $\|A\|=\|B\|=1$) |
+| **Score Range** | $[-1.0, +1.0]$ | $(-\infty, +\infty)$ | $[-1.0, +1.0]$ |
+| **Length Sensitivity** | Invariant (ignores length) | Sensitive (large vectors score higher) | Invariant (lengths are fixed to 1) |
+| **Search Speed** | Slower (requires norm calculation per query) | Fast | **Fastest** (pure matrix multiplication) |

@@ -1,21 +1,19 @@
 # Backpropagation
 
 ## What's Backpropagation?
-It's an algorithm for calculating the gradients of the loss function with respect to the weights and biases in an artificial neural network.
-
-Stacking multiple TLU layers creates a **Multi-Layer Perceptron (MLP)** consisting of an input layer, one or more hidden layers, and an output layer.
+Backpropagation is the "blame assignment" algorithm. It works backward from the final error to calculate the gradient (how much each individual weight and bias contributed to that error).
 
 ---
 
 ## Random Weight Initialization
-It is important to initialize all the hidden layers’ connection weights randomly, or else training will fail. For example, if you initialize all weights and biases to zero, then all neurons in a given layer will be perfectly identical, and thus backpropagation will affect them in exactly the same way, so they will remain identical.
+If all weights start at 0 (or identical values), every neuron in a hidden layer computes the exact same output and receives the exact same gradient. They will learn the exact same thing in lockstep. Random weights break this symmetry so neurons can specialize in different features.
 
 ---
 
 ## The 4-Step Training Loop
 1. **Forward Propagation (Making a Prediction):** A mini-batch of input nodes crosses the layers where it is affected by weighted sums, activations of the said nodes, and biases, making its way to the final product while saving intermediate layer outputs.
-2. **Loss Computation:** Once output is made, the network compares its prediction to the true target label using a loss function to calculate the output error.
-3. **Backpropagation / Reverse Pass (Tracking Down Errors):** Applies the calculus **chain rule** backward from the output layer—we nudge the node by altering the past layer's weights and biases, and so on all the way back to the input layer, to calculate error gradients across all weights.
+2. **Loss Computation:** Once output is made, the network compares the guess to the actual target using a Loss Function.
+3. **Backpropagation / Reverse Pass (Tracking Down Errors):** Applies the calculus **chain rule** backward from the output layer, we nudge the node by altering the past layer's weights and biases, and so on all the way back to the input layer, to calculate error gradients across all weights.
 4. **Gradient Descent Step:** Adjusts all connection weights and biases in the opposite direction of the gradients.
 
 ---

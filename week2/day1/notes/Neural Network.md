@@ -1,10 +1,11 @@
 # Neural Network
 
 ## Neurons
-Neorons process inputs by weighting sum and applying activation function. 
-Neurons are things that hold numbers between 0 and 1, called **activations**.
+* Neuron: A single processing node that holds one number called its activation (which represents how active or excited it is).
+* Weights & Bias: Weights control how strongly each input matters, while the bias acts as the threshold for when the neuron fires.
+* Activation: The final excitement level produced after calculating the weighted sum plus bias, and passing it through the activation function (Sigmuid or RLU).
 
-* *Note on parameters:* Neurons only store their **activation**. The **weights** live on the connections between neurons, and **biases** belong to the neuron as an activation threshold.
+> *Note on parameters:* Neurons only store their **activation**. The **weights** live on the connections between neurons, and **biases** belong to the neuron as an activation threshold.
 
 ---
 
@@ -56,6 +57,7 @@ $$\text{ReLU}(z) = \max(0, z)$$
   * **Sparse:** Neurons with negative input stay at $0$.
 * **Modern usage:** Standard default choice for **hidden layers**.
 
+![alt text](image-5.png)
 ---
 
 ## Modeling a Layer: Matrix Representation

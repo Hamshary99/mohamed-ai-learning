@@ -90,6 +90,8 @@ async def event_stream_generator(query: str, thread_id: str, request: Request) -
         # 1. Initial SSE handshake event
         yield f"event: start\ndata: {json.dumps({'status': 'processing', 'query': query})}\n\n"
 
+        streamed_any_token = False
+
         # 2. Stream graph events as they execute across nodes
         async for event in graph.astream_events(initial_state, config=config, version="v2"):
             # Check for client disconnect to avoid wasting LLM resources
@@ -125,7 +127,17 @@ async def event_stream_generator(query: str, thread_id: str, request: Request) -
                 output_data = (event.get("data") or {}).get("output", {})
                 direct_reply_text = output_data.get("final_response", "")
                 if direct_reply_text:
+                    streamed_any_token = True
                     payload = json.dumps({"token": direct_reply_text})
+                    yield f"event: token\ndata: {payload}\n\n"
+
+            # Stream direct response from generate_node when LLM was bypassed (e.g. empty retrieved docs)
+            elif event_type in ("on_node_end", "on_chain_end") and event.get("name") == "generate_node":
+                output_data = (event.get("data") or {}).get("output", {})
+                gen_reply = output_data.get("final_response", "")
+                if gen_reply and not streamed_any_token:
+                    streamed_any_token = True
+                    payload = json.dumps({"token": gen_reply})
                     yield f"event: token\ndata: {payload}\n\n"
 
             # Stream LLM tokens live as they are generated
@@ -142,6 +154,7 @@ async def event_stream_generator(query: str, thread_id: str, request: Request) -
                             elif isinstance(part, dict) and "text" in part:
                                 token_str += part.get("text", "")
                     if token_str:
+                        streamed_any_token = True
                         payload = json.dumps({"token": token_str})
                         yield f"event: token\ndata: {payload}\n\n"
 

@@ -248,16 +248,16 @@ class StudentGatorNodes:
 
         # Print top-k sources and scores to the terminal
         if top_chunks:
-            print(f"\n[Terminal Log - Retrieved Sources & Scores for Query: \"{query}\"]")
+            print(f"\n[Terminal Log - Retrieved Sources & Scores for Query: \"{query}\"]", flush=True)
             for idx, doc in enumerate(top_chunks, 1):
                 src = doc.metadata.get("source", "Unknown")
                 page = doc.metadata.get("page", "N/A")
                 score = doc.metadata.get("relevance_score")
                 score_str = f" | Cross-Encoder Score: {score:+.3f}" if score is not None else ""
-                print(f"  {idx}. {src} (Page {page}){score_str}")
-            print()
+                print(f"  {idx}. {src} (Page {page}){score_str}", flush=True)
+            print(flush=True)
         else:
-            print(f"\n[Terminal Log - No sources passed threshold for Query: \"{query}\"]\n")
+            print(f"\n[Terminal Log - No sources passed threshold for Query: \"{query}\"]\n", flush=True)
 
         # Writes top chunks to 'retrieved_docs' matching AgentState schema
         return {"retrieved_docs": top_chunks}
@@ -275,6 +275,25 @@ class StudentGatorNodes:
         """
         query = state.get("current_query", "")
         retrieved_docs = state.get("retrieved_docs", [])
+
+        # Strict RAG Guardrail: If no documents passed the relevance threshold,
+        # do NOT invoke the LLM with empty context, which triggers parametric memory hallucination.
+        if not retrieved_docs:
+            reply = (
+                "Official policy details regarding this specific inquiry were not found in the loaded institutional documentation.\n\n"
+                "Our institutional knowledge base covers:\n"
+                "• United States: F-1 OPT / STEM OPT policy guidance and graduate assistantship regulations\n"
+                "• Germany: Section 16b AufenthG (140 full / 280 half day limit), blocked accounts, Bürgeramt\n"
+                "• France: VLS-TS visa validation on ANEF, 964-hour limit, CAF housing assistance\n"
+                "• Spain: UC3M degree admissions and TIE card requirements\n"
+                "• StudentGator: Platform application procedures and counseling support\n\n"
+                "For policies outside our specific document repository (such as standard U.S. on-campus student jobs or CPT work rules), please consult your university's Designated School Official (DSO) or the official immigration authority directly."
+            )
+            return {
+                "final_response": reply,
+                "messages": [AIMessage(content=reply)]
+            }
+
         messages_history = state.get("messages", [])
         if not messages_history:
             messages_history = [HumanMessage(content=query)]
@@ -294,14 +313,15 @@ class StudentGatorNodes:
                 "Your institutional repository covers: United States (F-1 / OPT regulations), Germany (Section 16b / study visas), "
                 "France (VLS-TS validation & student rights), Spain (UC3M admissions & TIE), and StudentGator platform guidelines.\n\n"
                 "Operating Guidelines:\n"
-                "1. Answer the student's question accurately and authoritatively using the provided institutional context below and recent conversation history.\n"
+                "1. Answer the student's question accurately and authoritatively using ONLY the provided institutional context below and recent conversation history. Never use unverified external pre-training knowledge.\n"
                 "2. Synthesize a complete advisory response: directly answer the inquiry first, then naturally incorporate the relevant conditions, statutory limits, exceptions, and procedural steps found across the retrieved context to provide comprehensive value.\n"
                 "3. Do NOT include inline citations or bracketed source tags (such as [Source: ...] or Page numbers) in your chat response. The system logs sources and cross-encoder scores to the terminal separately.\n"
                 "4. If a student asks about a country, jurisdiction, or institution NOT in your context (e.g., Canada, UK, Iran, Australia):\n"
                 "   - State clearly that official policy details for that country or institution are outside your documentation scope.\n"
                 "   - List the regions you do cover (US, Germany, France, Spain, StudentGator).\n"
                 "   - Recommend that they consult that country's official immigration department or contact StudentGator support.\n"
-                "5. Never fabricate or extrapolate immigration rules beyond the text.\n\n"
+                "5. If the provided institutional context does not contain sufficient details to answer the question, state that official policy details on that aspect are missing from the documentation.\n"
+                "6. Never fabricate or extrapolate immigration rules beyond the text.\n\n"
                 f"INSTITUTIONAL CONTEXT:\n{context_str}"
             )),
             *recent_history

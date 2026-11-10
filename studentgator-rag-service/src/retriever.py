@@ -144,11 +144,12 @@ class AdvancedRetrieverService:
         # Lightweight re-ranker for joint query-document cross-attention scoring
         self.reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
-    def retrieve_and_rerank(self, query: str, top_k: int = 3) -> List[Document]:
+    def retrieve_and_rerank(self, query: str, top_k: int = 3, min_score: float = -2.0) -> List[Document]:
         """
-        Two-stage retrieval funnel:
+        Two-stage retrieval funnel with cross-encoder relevance gating:
         - Stage 1: Coarse candidate recall via Ensemble RRF (Dense + BM25).
         - Stage 2: Fine-grained token cross-attention scoring via Cross-Encoder.
+        - Stage 3: Strict threshold cutoff (prunes out-of-scope / distractor chunks with scores < min_score).
         """
         # Stage 1: Ensemble RRF candidate recall
         candidates = self.ensemble_retriever.invoke(query)
@@ -162,9 +163,12 @@ class AdvancedRetrieverService:
         for doc, score in zip(candidates, scores):
             doc.metadata["relevance_score"] = float(score)
 
-        # Sort descending by re-rank score and truncate to top_k
+        # Sort descending by re-rank score
         ranked = sorted(candidates, key=lambda d: d.metadata["relevance_score"], reverse=True)
-        return ranked[:top_k]
+
+        # Stage 3: Prune irrelevant cross-border chunks below minimum relevance cutoff
+        filtered = [doc for doc in ranked if doc.metadata["relevance_score"] >= min_score]
+        return filtered[:top_k]
 
     # Backward compatibility alias
     retreiver_and_reranker = retrieve_and_rerank

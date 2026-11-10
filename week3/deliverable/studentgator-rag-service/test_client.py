@@ -18,6 +18,7 @@ URL = "http://localhost:8000/api/v1/chat"
 
 def stream_message(message: str, thread_id: str):
     payload = {"message": message, "thread_id": thread_id}
+    sources_buffer = []
     try:
         with requests.post(URL, json=payload, stream=True, timeout=60) as response:
             if response.status_code != 200:
@@ -32,6 +33,11 @@ def stream_message(message: str, thread_id: str):
                 raw_json = line[len("data:"):].strip()
                 if raw_json == "[DONE]":
                     print("\n")
+                    if sources_buffer:
+                        print("  [Retrieved Sources & Cross-Encoder Scores (Terminal)]: ")
+                        for idx, s in enumerate(sources_buffer, 1):
+                            print(f"    {idx}. {s['source']} (Page {s['page']}) | Cross-Encoder Score: {s['score']:+.3f}")
+                        print()
                     break
 
                 try:
@@ -40,6 +46,8 @@ def stream_message(message: str, thread_id: str):
                         print(event["token"], end="", flush=True)
                     elif "intent" in event:
                         print(f"[{event['intent']}] ", end="", flush=True)
+                    elif "sources" in event:
+                        sources_buffer = event["sources"]
                     elif "error" in event:
                         print(f"\n[Stream Error]: {event['error']}")
                 except json.JSONDecodeError:

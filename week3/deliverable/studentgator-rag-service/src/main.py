@@ -105,6 +105,21 @@ async def event_stream_generator(query: str, thread_id: str, request: Request) -
                 if intent:
                     yield f"event: route\ndata: {json.dumps({'intent': intent})}\n\n"
 
+            # Stream retrieved sources event (for terminal logging in clients)
+            elif event_type in ("on_node_end", "on_chain_end") and event.get("name") == "rag_retrieval_node":
+                output_data = (event.get("data") or {}).get("output", {})
+                docs = output_data.get("retrieved_docs", [])
+                source_list = [
+                    {
+                        "source": d.metadata.get("source", "Unknown"),
+                        "page": d.metadata.get("page", "N/A"),
+                        "score": round(d.metadata.get("relevance_score", 0.0), 3)
+                    }
+                    for d in docs
+                ]
+                if source_list:
+                    yield f"event: sources\ndata: {json.dumps({'sources': source_list})}\n\n"
+
             # Stream direct conversational responses (bypasses LLM, e.g. greeting or out-of-scope)
             elif event_type in ("on_node_end", "on_chain_end") and event.get("name") == "direct_node":
                 output_data = (event.get("data") or {}).get("output", {})

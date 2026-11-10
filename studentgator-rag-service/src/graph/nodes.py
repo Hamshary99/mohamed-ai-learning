@@ -43,8 +43,14 @@ class OfflineFallbackChatModel(BaseChatModel):
             ""
         ]
         if context:
-            reply_parts.append(context)
-            reply_parts.append("\n(Policy Reference: Verified via local ChromaDB & Cross-Encoder re-ranker)")
+            # Clean context for chat bubble: omit metadata headers
+            clean_lines = []
+            for line in context.splitlines():
+                if line.strip().startswith("[Source:") or line.strip().startswith("(Policy Reference:"):
+                    continue
+                clean_lines.append(line)
+            clean_text = "\n".join(clean_lines).strip()
+            reply_parts.append(clean_text)
         else:
             reply_parts.append("Official policy details for this query were not found in the local documentation.")
 
@@ -240,6 +246,19 @@ class StudentGatorNodes:
         query = state.get("current_query", "")
         top_chunks = self.retriever_service.retrieve_and_rerank(query, top_k=3)
 
+        # Print top-k sources and scores to the terminal
+        if top_chunks:
+            print(f"\n[Terminal Log - Retrieved Sources & Scores for Query: \"{query}\"]")
+            for idx, doc in enumerate(top_chunks, 1):
+                src = doc.metadata.get("source", "Unknown")
+                page = doc.metadata.get("page", "N/A")
+                score = doc.metadata.get("relevance_score")
+                score_str = f" | Cross-Encoder Score: {score:+.3f}" if score is not None else ""
+                print(f"  {idx}. {src} (Page {page}){score_str}")
+            print()
+        else:
+            print(f"\n[Terminal Log - No sources passed threshold for Query: \"{query}\"]\n")
+
         # Writes top chunks to 'retrieved_docs' matching AgentState schema
         return {"retrieved_docs": top_chunks}
 
@@ -275,13 +294,14 @@ class StudentGatorNodes:
                 "Your institutional repository covers: United States (F-1 / OPT regulations), Germany (Section 16b / study visas), "
                 "France (VLS-TS validation & student rights), Spain (UC3M admissions & TIE), and StudentGator platform guidelines.\n\n"
                 "Operating Guidelines:\n"
-                "1. Answer the student's question accurately using ONLY the provided institutional context below and recent conversation history.\n"
-                "2. Always cite specific source documents and page numbers (e.g. [Source: doc_name.pdf | Page: X]).\n"
-                "3. If a student asks about a country, jurisdiction, or institution NOT in your context (e.g., Canada, UK, Iran, Australia):\n"
+                "1. Answer the student's question accurately, clearly, and concisely using ONLY the provided institutional context below and recent conversation history.\n"
+                "2. Provide a concise, direct response answering only what was asked without unnecessary fluff.\n"
+                "3. Do NOT include inline citations, bracketed source tags (such as [Source: ...] or Page numbers), or relevance scores in your chat response. The system logs sources and cross-encoder scores to the terminal separately.\n"
+                "4. If a student asks about a country, jurisdiction, or institution NOT in your context (e.g., Canada, UK, Iran, Australia):\n"
                 "   - State clearly that official policy details for that country or institution are outside your documentation scope.\n"
                 "   - List the regions you do cover (US, Germany, France, Spain, StudentGator).\n"
                 "   - Recommend that they consult that country's official immigration department or contact StudentGator support.\n"
-                "4. Never fabricate or extrapolate immigration rules beyond the text.\n\n"
+                "5. Never fabricate or extrapolate immigration rules beyond the text.\n\n"
                 f"INSTITUTIONAL CONTEXT:\n{context_str}"
             )),
             *recent_history

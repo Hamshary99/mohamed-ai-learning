@@ -1,0 +1,12 @@
+{
+  "name": "studentgator-rag-service",
+  "version": "1.0.0",
+  "description": "StudentGator Production Agentic RAG Service with LangGraph, Hybrid Search & SSE Streaming",
+  "scripts": {
+    "start": "cmd /c start.bat",
+    "dev": "cmd /c start.bat",
+    "chat": "cmd /c chat.bat",
+    "ingest": "cmd /c ingest.bat"
+  }
+}
+

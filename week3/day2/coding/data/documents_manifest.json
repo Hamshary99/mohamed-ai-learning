@@ -1,0 +1,141 @@
+[
+  {
+    "file_name": "us_uf_f1_graduate_regulations.pdf",
+    "relative_path": "data/us_uf_f1_graduate_regulations.pdf",
+    "title": "University of Florida International & Graduate Student Regulations Handbook",
+    "institution": "University of Florida",
+    "country": "United States",
+    "domain_category": "us_academic_regulations",
+    "statutory_terms": [
+      "Form I-20",
+      "SEVIS",
+      "OPT",
+      "CPT",
+      "DSO endorsement",
+      "full-time enrollment",
+      "reduced course load"
+    ],
+    "page_count": 60,
+    "file_size_kb": 824.1,
+    "source_url": "https://che.ufl.edu/wp-content/uploads/sites/47/2026/03/Grad-Handbook-2023-2024.pdf"
+  },
+  {
+    "file_name": "us_dhs_ice_opt_policy_guidance.pdf",
+    "relative_path": "data/us_dhs_ice_opt_policy_guidance.pdf",
+    "title": "U.S. DHS / ICE / SEVP Policy Guidance: Practical Training & Employment for F-1 Students",
+    "institution": "U.S. Department of Homeland Security / ICE SEVP",
+    "country": "United States",
+    "domain_category": "us_federal_immigration",
+    "statutory_terms": [
+      "Form I-20",
+      "SEVIS ID",
+      "OPT",
+      "STEM OPT Extension",
+      "DSO",
+      "8 CFR 214.2(f)",
+      "Form I-765",
+      "EAD"
+    ],
+    "page_count": 5,
+    "file_size_kb": 624.2,
+    "source_url": "https://www.ice.gov/doclib/sevis/pdf/optDirectlyRelatedGuidance.pdf"
+  },
+  {
+    "file_name": "eu_germany_study_visa_regulations.pdf",
+    "relative_path": "data/eu_germany_study_visa_regulations.pdf",
+    "title": "German Federal Foreign Office: Regulations for Study Visas & Residence Permits (Section 16b AufenthG)",
+    "institution": "German Federal Foreign Office (Ausw\u00e4rtiges Amt)",
+    "country": "Germany",
+    "domain_category": "eu_germany_admissions",
+    "statutory_terms": [
+      "Section 16b AufenthG",
+      "Sperrkonto blocked account",
+      "Aufenthaltserlaubnis",
+      "health insurance",
+      "B\u00fcrgeramt registration"
+    ],
+    "page_count": 3,
+    "file_size_kb": 283.9,
+    "source_url": "https://stockholm.diplo.de/resource/blob/2356982/c49ceee5323cfd1fd1ed9cee97d5acb0/mb-study-16b-data.pdf"
+  },
+  {
+    "file_name": "eu_germany_residence_act_section_16b.pdf",
+    "relative_path": "data/eu_germany_residence_act_section_16b.pdf",
+    "title": "German Federal Ministry of Justice: Residence Act (Section 16b Higher Education & 140-Day Employment Regulations)",
+    "institution": "Federal Ministry of Justice & Ausländerbehörde",
+    "country": "Germany",
+    "domain_category": "eu_germany_admissions",
+    "statutory_terms": [
+      "Section 16b AufenthG",
+      "140 full days",
+      "280 half days",
+      "Arbeitstagekonto",
+      "studentische Nebentätigkeiten",
+      "HiWi assistant",
+      "20 hours per week",
+      "Günstigkeitsprüfung"
+    ],
+    "page_count": 2,
+    "file_size_kb": 25.0,
+    "source_url": "https://www.gesetze-im-internet.de/englisch_aufenthg/englisch_aufenthg.html"
+  },
+  {
+    "file_name": "eu_france_student_immigration_guide.pdf",
+    "relative_path": "data/eu_france_student_immigration_guide.pdf",
+    "title": "French Ministry for Europe & Foreign Affairs: International Student Living & Visa Guide",
+    "institution": "Ministry for Europe and Foreign Affairs (France)",
+    "country": "France",
+    "domain_category": "eu_france_admissions",
+    "statutory_terms": [
+      "VLS-TS student visa",
+      "OFII validation",
+      "CAF housing subsidy",
+      "S\u00e9curit\u00e9 Sociale",
+      "titre de s\u00e9jour"
+    ],
+    "page_count": 61,
+    "file_size_kb": 1194.8,
+    "source_url": "https://cm.diplomatie.gouv.fr/files/cm/files/guide-d_informations-venir-vivre-en-france-110816.pdf"
+  },
+  {
+    "file_name": "eu_france_vlsts_validation_guide.pdf",
+    "relative_path": "data/eu_france_vlsts_validation_guide.pdf",
+    "title": "Campus France & Ministry of the Interior: Official Guide to Validating VLS-TS Student Visa (ANEF / OFII)",
+    "institution": "Campus France & Direction Générale des Étrangers en France",
+    "country": "France",
+    "domain_category": "eu_france_admissions",
+    "statutory_terms": [
+      "VLS-TS student visa",
+      "ANEF portal",
+      "validation within 3 months",
+      "timbre fiscal 50 EUR",
+      "Attestation de validation",
+      "Numéro Étranger",
+      "964 hours work limit",
+      "CAF APL housing",
+      "etudiant-etranger.ameli.fr"
+    ],
+    "page_count": 2,
+    "file_size_kb": 26.5,
+    "source_url": "https://www.campusfrance.org/en/how-to-validate-your-vls-ts-visa"
+  },
+  {
+    "file_name": "eu_spain_uc3m_immigration_guide.pdf",
+    "relative_path": "data/eu_spain_uc3m_immigration_guide.pdf",
+    "title": "Universidad Carlos III de Madrid: International Student Immigration & Visa Guide",
+    "institution": "Universidad Carlos III de Madrid (UC3M)",
+    "country": "Spain",
+    "domain_category": "eu_spain_admissions",
+    "statutory_terms": [
+      "NIE number",
+      "TIE card",
+      "estancia por estudios",
+      "empadronamiento",
+      "EU registration",
+      "Schengen compliance"
+    ],
+    "page_count": 16,
+    "file_size_kb": 771.7,
+    "source_url": "https://www.uc3m.es/ss/Satellite?blobcol=urldata&blobheader=application%2Fpdf&blobheadername1=Content-Disposition&blobheadername2=Cache-Control&blobheadervalue1=attachment%3B+filename%3D%22Immigration_and_Visa.pdf%22&blobheadervalue2=private&blobkey=id&blobtable=MungoBlobs&blobwhere=1371552598135&ssbinary=true"
+  }
+]

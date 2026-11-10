@@ -26,3 +26,10 @@ outputs/
 
 # Local external tools / binaries
 .tools/
+.agents/
+
+# Environment secrets
+.env
+*.env
+.env.*
+!.env.example

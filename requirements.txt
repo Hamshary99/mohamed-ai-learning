@@ -1,15 +1,46 @@
-# Hands-On ML sandbox — install with:
-#   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+# StudentGator AI Engineering: From ML to Production
+# Main Virtual Environment Requirements
+# Install with: .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# --- Week 1: Machine Learning Foundations ---
 numpy>=1.26
 pandas>=2.0
 matplotlib>=3.8
 scikit-learn>=1.4
 scipy>=1.11
 seaborn>=0.13
+xgboost>=2.0
+kagglehub>=0.2
+
+# --- Interactive Development & Jupyter ---
 jupyter>=1.0
 notebook>=7.0
 ipykernel>=6.0
 ipywidgets>=8.0
-xgboost>=2.0
 pillow>=10.0
-kagglehub>=0.2
+
+# --- Week 2: Deep Learning, Embeddings & Async ---
+torch>=2.2.0
+transformers>=4.40.0
+sentence-transformers>=2.2.0
+
+# --- Week 3: RAG, LangChain & LangGraph ---
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-core>=0.2.0
+langchain-text-splitters>=0.2.0
+langchain-chroma>=0.1.0
+langchain-huggingface>=1.2.0
+langchain-openai>=0.1.0
+langgraph>=0.2.0
+langsmith>=0.1.0
+chromadb>=0.4.0
+rank-bm25>=0.2.2
+pypdf>=5.0.0
+beautifulsoup4>=4.12.0
+
+# --- Week 3 & 4: API & Serving (FastAPI) ---
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.7.0
+requests>=2.31.0

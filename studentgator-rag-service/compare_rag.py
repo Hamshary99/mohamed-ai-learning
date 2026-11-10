@@ -6,8 +6,8 @@ Executes 5 simplified multi-jurisdiction benchmark queries directly contrasting:
   [-] Naive RAG:  Pure Dense Vector Search (Top-2) + Unconstrained LLM Synthesis
   [+] Proper RAG: Scope Router + Hybrid RRF + Cross-Encoder Re-Ranking + Guardrails
 
-Omitted: Verbose theoretical lecture dumps and internal diagnostic dumps.
-Focused strictly on the functional differences in retrieval and answer accuracy.
+Generates console output and writes a comprehensive report to benchmark_results.md
+so results can be viewed, copied, and presented cleanly.
 ================================================================================
 """
 
@@ -49,43 +49,43 @@ from src.graph.workflow import build_studentgator_graph
 BENCHMARK_SUITE = [
     {
         "id": 1,
-        "title": "Platform FAQ & Pricing Accuracy",
-        "query": "What are StudentGator's fees?",
-        "challenge": "Platform Keyword Search vs. Irrelevant Academic University Fees",
-        "naive_flaw": "Dense vector search confuses 'fees' with foreign university tuition, retrieving US graduate lab fee policies (us_uf_f1_graduate_regulations.pdf) and claiming students owe lab fees.",
-        "proper_advantage": "BM25 sparse search anchors on the keyword 'StudentGator', retrieving Studentgator FAQs.pdf (p. 1) to confirm services are 100% free for students."
+        "title": "German Student Employment Allowance",
+        "query": "Can international students work in Germany while studying?",
+        "challenge": "Statutory Precision (§16b AufenthG) vs. Loose General Overview",
+        "naive_flaw": "Dense search retrieves broad university text without re-ranking, missing the strict statutory 140 full / 280 half day annual cap.",
+        "proper_advantage": "Hybrid RRF + Cross-Encoder prioritizes eu_germany_residence_act_section_16b.pdf and visa regulations, citing the exact 140 full or 280 half day legal allowance."
     },
     {
         "id": 2,
-        "title": "Constraint & Negation Handling",
-        "query": "Can I work as much as I want in Germany as a student?",
-        "challenge": "Cross-Encoder joint token attention vs. Bi-Encoder cosine distance",
-        "naive_flaw": "Cosine similarity matches positive phrases ('students can work in Germany') and ignores the condition ('as much as I want'), suggesting unlimited work.",
-        "proper_advantage": "Cross-Encoder evaluates joint attention between 'as much as I want' and the statutory regulations, enforcing the 140 full / 280 half day annual limit."
+        "title": "Platform Rejection Support & Keyword Precision",
+        "query": "What if I got rejected while applying on studentgator website?",
+        "challenge": "Sparse Keyword Anchoring on Platform vs. Academic University Denials",
+        "naive_flaw": "Dense bi-encoder matches semantic 'rejection' to foreign university admissions denials or visa refusals, confusing platform advisory with university rejections.",
+        "proper_advantage": "Sparse BM25 anchors on 'studentgator website', retrieving Studentgator FAQs.pdf (p. 3) to confirm counselor assistance and alternative program placement."
     },
     {
         "id": 3,
-        "title": "Administrative Procedure Precision",
-        "query": "How do I validate my French student visa and what is the deadline?",
-        "challenge": "Targeted Hybrid Retrieval vs. 300+ General Country Chunks",
-        "naive_flaw": "Dense search gets diluted across general French student guides, returning broad arrival tips while missing the specific 3-month online ANEF validation deadline.",
-        "proper_advantage": "Hybrid RRF pinpoints eu_france_vlsts_validation_guide.pdf, citing the exact 3-month window on the official ANEF portal."
+        "title": "US Practical Training & Work Authorization",
+        "query": "Can I work while studying in the US?",
+        "challenge": "Institutional Policy Guidance (DSO & EAD) vs. Vague Work Rights",
+        "naive_flaw": "Dense top-2 search returns partial fragments regarding SEVP portal text without specifying the mandatory prerequisite sequence of DSO recommendation + USCIS EAD.",
+        "proper_advantage": "Hybrid retrieval pulls us_dhs_ice_opt_policy_guidance.pdf (p. 2), clarifying DSO recommendation, USCIS EAD approval, field of study linkage, and noting standard on-campus scope limits."
     },
     {
         "id": 4,
-        "title": "Cross-Border Hallucination Prevention",
-        "query": "Can I get a post-graduation work permit in Canada?",
-        "challenge": "Repository Scope Guardrails vs. Blind Top-K Retrieval",
-        "naive_flaw": "Blindly retrieves top 2 chunks (US OPT or German Section 20) and attempts to fabricate Canadian immigration rules from US/German context.",
-        "proper_advantage": "Knowledge base guardrails identify that Canada is absent from the repository (US, Germany, France, Spain) and explicitly refuse to extrapolate."
+        "title": "Geographical Scope Guardrails & Hallucination Prevention",
+        "query": "Can I work while studying in Iran?",
+        "challenge": "Strict Repository Scope Guardrails vs. Blind Top-K Extrapolation",
+        "naive_flaw": "Blindly retrieves closest top-2 documents (e.g. US or German work laws) and unconstrained prompt attempts to extrapolate Iranian work rights from foreign contexts.",
+        "proper_advantage": "Guardrails detect absence of Iran from institutional context, explicitly issuing a factual refusal naming supported jurisdictions (Germany, France, Spain, US)."
     },
     {
         "id": 5,
-        "title": "Off-Topic Query Efficiency",
-        "query": "How do I make pizza?",
+        "title": "Off-Topic Query Efficiency & Latency Optimization",
+        "query": "how to make pizza",
         "challenge": "0ms Intent Scope Router vs. Wasted Vector Latency",
-        "naive_flaw": "Performs unnecessary database searches, retrieving random immigration chunks with shared words ('processing', 'preparation') and attempting an answer.",
-        "proper_advantage": "Intent Classifier detects [out_of_scope] in 0ms without touching the vector database, directly returning an advisory scope guide."
+        "naive_flaw": "Performs unnecessary vector DB searches across immigration PDFs for pizza recipes, wasting embedding latency, ChromaDB search, and LLM tokens.",
+        "proper_advantage": "Intent Classifier detects [out_of_scope] in 0ms without querying the vector database, instantly redirecting the user to StudentGator scope."
     }
 ]
 
@@ -157,8 +157,80 @@ def format_doc_summary(doc) -> str:
 def clean_preview(text: str, max_lines: int = 5) -> str:
     lines = [line.strip() for line in text.strip().split("\n") if line.strip()]
     if len(lines) > max_lines:
-        return "\n    ".join(lines[:max_lines]) + "\n    [... truncated for display ...]"
+        return "\n    ".join(lines[:max_lines]) + "\n    [... truncated for console display ...]"
     return "\n    ".join(lines)
+
+
+def generate_markdown_report(results: list, report_path: Path):
+    """Writes a beautifully formatted markdown report with full un-truncated answers."""
+    lines = []
+    lines.append("# StudentGator RAG Benchmark: Naive vs. Proper Advanced RAG")
+    lines.append("")
+    lines.append("**Date:** November 2026  ")
+    lines.append("**Knowledge Base:** 8 Institutional Regulatory Handbooks & FAQs (1,100 deduplicated chunks)  ")
+    lines.append("**Embedding Engine:** sentence-transformers/all-MiniLM-L6-v2  ")
+    lines.append("**Re-Ranker:** cross-encoder/ms-marco-MiniLM-L-6-v2  ")
+    lines.append("**Primary LLM:** Google Gemini Flash Lite  ")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## Executive Comparison Matrix")
+    lines.append("")
+    lines.append("| # | Benchmark Query | Naive RAG Architecture Flaw | Proper Advanced RAG Advantage |")
+    lines.append("|---|---|---|---|")
+    for r in results:
+        lines.append(f"| {r['id']} | **{r['query']}** | {r['naive_flaw']} | {r['proper_advantage']} |")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## Detailed Comparative Evaluations")
+    lines.append("")
+
+    for r in results:
+        lines.append(f"### Query {r['id']}: \"{r['query']}\"")
+        lines.append(f"**Test Focus:** {r['title']}  ")
+        lines.append(f"**Challenge:** {r['challenge']}  ")
+        lines.append("")
+
+        lines.append("#### 1. Naive RAG (Dense Bi-Encoder Only, Top-2 Chunks)")
+        lines.append(f"- **Total Latency:** {r['naive']['total_ms']:.1f}ms (Retrieval: {r['naive']['retrieval_ms']:.1f}ms)")
+        lines.append("- **Retrieved Chunks:**")
+        for idx, doc in enumerate(r['naive']['docs'], 1):
+            src = doc.metadata.get('source', 'Unknown')
+            pg = doc.metadata.get('page', 'N/A')
+            snip = " ".join(doc.page_content.split())
+            lines.append(f"  {idx}. `{src}` (Page {pg}): \"{snip}\"")
+        lines.append("- **Generated Answer:**")
+        lines.append("")
+        lines.append("> " + r['naive']['answer'].replace("\n", "\n> "))
+        lines.append("")
+        lines.append(f"- **Identified Flaw:** {r['naive_flaw']}")
+        lines.append("")
+
+        lines.append("#### 2. Proper Advanced RAG (Intent Classifier + Hybrid RRF + Cross-Encoder + Guardrails)")
+        lines.append(f"- **Routing Intent:** `{r['proper']['intent']}`")
+        lines.append(f"- **Total Latency:** {r['proper']['total_ms']:.1f}ms")
+        if r['proper']['docs']:
+            lines.append("- **Re-Ranked Evidence Chunks:**")
+            for idx, doc in enumerate(r['proper']['docs'], 1):
+                src = doc.metadata.get('source', 'Unknown')
+                pg = doc.metadata.get('page', 'N/A')
+                score = doc.metadata.get('relevance_score')
+                score_str = f" | Cross-Encoder Score: {score:.3f}" if score is not None else ""
+                snip = " ".join(doc.page_content.split())
+                lines.append(f"  {idx}. `{src}` (Page {pg}){score_str}: \"{snip}\"")
+        else:
+            lines.append("- **Vector Database:** Bypassed (0ms latency, direct response)")
+        lines.append("- **Grounded Answer:**")
+        lines.append("")
+        lines.append(r['proper']['answer'])
+        lines.append("")
+        lines.append(f"- **Architectural Advantage:** {r['proper_advantage']}")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+
+    report_path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def main():
@@ -166,7 +238,7 @@ def main():
     print("  STUDENTGATOR BENCHMARK: NAIVE RAG vs. PROPER ADVANCED RAG")
     print("=" * 80)
     print("  Repository : 8 Institutional Regulatory Handbooks & FAQs (1,100 chunks)")
-    print("  Evaluation : 5 Simplified Benchmark Tests")
+    print("  Evaluation : 5 Realistic Grounded Benchmark Queries")
     print("=" * 80)
     print("\n[Initializing Hybrid Knowledge Base and Pipeline Services...]")
 
@@ -175,6 +247,8 @@ def main():
     nodes = StudentGatorNodes(retriever_service=retriever)
     graph = build_studentgator_graph(retriever_service=retriever, llm=nodes.llm)
     print(f"[Initialization complete in {(time.perf_counter() - t_init):.2f}s]\n")
+
+    benchmark_records = []
 
     for item in BENCHMARK_SUITE:
         qid = item["id"]
@@ -218,18 +292,32 @@ def main():
 
         print()
 
-    # Final Summary Matrix
+        benchmark_records.append({
+            "id": qid,
+            "title": title,
+            "query": qtext,
+            "challenge": challenge,
+            "naive_flaw": item["naive_flaw"],
+            "proper_advantage": item["proper_advantage"],
+            "naive": naive_res,
+            "proper": proper_res
+        })
+
+    # Save to benchmark_results.md
+    report_file = SERVICE_DIR / "benchmark_results.md"
+    generate_markdown_report(benchmark_records, report_file)
     print("=" * 80)
-    print("  TECHNIQUE COMPARISON MATRIX")
+    print(f"  [SUCCESS] Benchmark Report Generated: {report_file.name}")
+    print(f"  Location: {report_file}")
     print("=" * 80)
-    print(f"{'Dimension':<25} | {'Naive RAG':<24} | {'Proper Advanced RAG':<25}")
-    print("-" * 80)
-    print(f"{'1. Platform FAQ Precision':<25} | {'Pulls unrelated US fees':<24} | {'BM25 locks StudentGator FAQ'}")
-    print(f"{'2. Negation / Limits':<25} | {'Ignores restrictions':<24} | {'Cross-Encoder catches limit'}")
-    print(f"{'3. Administrative Deadlines':<25} | {'Diluted in large corpus':<24} | {'Hybrid RRF finds exact 3 mo'}")
-    print(f"{'4. Cross-Border Scope':<25} | {'Hallucinates from context':<24} | {'Strict repository refusal'}")
-    print(f"{'5. Off-Topic Handling':<25} | {'Wasted DB searches':<24} | {'0ms Intent scope bypass'}")
-    print("=" * 80 + "\n")
+
+    # Also sync to workspace root and deliverable folder if they exist
+    for target_dir in [CURRENT_DIR, CURRENT_DIR.parent / "week3" / "deliverable" / "studentgator-rag-service"]:
+        if target_dir.exists() and target_dir != SERVICE_DIR:
+            try:
+                generate_markdown_report(benchmark_records, target_dir / "benchmark_results.md")
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

@@ -38,6 +38,11 @@ echo.
 
 echo.
 echo ==============================================================================
-echo  Benchmark complete. Press any key to exit this window.
+echo  Benchmark complete! Full results saved to: benchmark_results.md
 echo ==============================================================================
+if exist benchmark_results.md (
+    echo You can easily copy and review the full formatted answers from:
+    echo   %~dp0benchmark_results.md
+    echo.
+)
 pause >nul

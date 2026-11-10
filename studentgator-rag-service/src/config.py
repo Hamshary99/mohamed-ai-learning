@@ -8,7 +8,7 @@ and model hyperparameters loaded from .env or system environment variables.
 
 from pathlib import Path
 from typing import Optional
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Project root path (directory containing .env and data/)
@@ -47,6 +47,31 @@ class Settings(BaseSettings):
         default="studentgator_knowledge_base",
         description="ChromaDB collection / table name"
     )
+
+    @field_validator("chroma_persist_directory", mode="after")
+    @classmethod
+    def resolve_chroma_dir(cls, v: str) -> str:
+        """
+        Dynamically anchors chroma_persist_directory to an existing populated ChromaDB
+        store, preventing empty SQLite generation when called from different working directories.
+        """
+        p = Path(v)
+        candidates = []
+        if p.is_absolute():
+            candidates.append(p)
+        else:
+            candidates.append((PROJECT_ROOT / p).resolve())
+            candidates.append((Path.cwd() / p).resolve())
+            candidates.append((PROJECT_ROOT.parent / "studentgator-rag-service" / p).resolve())
+
+        for cand in candidates:
+            sqlite_file = cand / "chroma.sqlite3"
+            if sqlite_file.exists() and sqlite_file.stat().st_size > 1000000:
+                return str(cand)
+
+        if not p.is_absolute():
+            return str((PROJECT_ROOT / p).resolve())
+        return str(p.resolve())
 
     # 4. Model Hyperparameters
     default_model: str = Field(default="gemini-3.5-flash", description="Primary chat model for answers & routing")

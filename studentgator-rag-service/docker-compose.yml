@@ -1,0 +1,19 @@
+# Local dev runner: wraps docker run flags, volumes, and env vars in one command
+services:
+  rag-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studentgator-rag-service
+    ports:
+      # Map localhost:8080 -> container 8080
+      - "8080:8080"
+    # Load API keys from local .env (never baked into the Docker image)
+    env_file:
+      - .env
+    environment:
+      - PORT=8080
+    volumes:
+      # Mount data folder so Chroma vector DB changes persist on my machine across restarts
+      - ./data:/app/data
+    restart: unless-stopped

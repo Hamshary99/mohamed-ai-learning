@@ -1,0 +1,64 @@
+name: Jobs Workflow
+
+# Flow:
+#          [ build ]
+#           /     \
+#          v       v     <-- Both have 'needs: build', so they run IN PARALLEL
+#      [ test ] [ ingest ]   ('test' also fans out across a Matrix of Python versions)
+#           \     /
+#            v   v       <-- Waits for both: 'needs: [test, ingest]'
+#          [ deploy ]
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # 1. Runs first
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+      - name: Compile Python files
+        run: python -m py_compile studentgator-rag-service/src/*.py
+
+  # 2A. Waits for 'build', then runs in parallel with 'ingest'
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      fail-fast: false   # Keep running other Python versions even if one version fails
+      max-parallel: 2    # Run at most 2 matrix jobs at the same time
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run unit tests
+        run: |
+          pip install pytest pydantic langchain-core langgraph
+          pytest studentgator-rag-service/tests/test_service.py -k "not rag" -v
+
+  # 2B. Also waits for 'build', so it runs in parallel with 'test'
+  ingest:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+      - name: Run RAG ingestion tests
+        run: |
+          pip install pytest pydantic pydantic-settings langchain-core langchain-community langchain-text-splitters langgraph pypdf
+          pytest studentgator-rag-service/tests/test_service.py -k "rag" -v
+
+  # 3. Waits for both 'test' and 'ingest' to finish before running
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, ingest]
+    steps:
+      - name: Deploy service
+        run: echo "Deploying StudentGator..."

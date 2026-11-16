@@ -1,0 +1,13 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+tests/
+*.bat
+benchmark_results.md
+compare_rag.py
+test_client.py

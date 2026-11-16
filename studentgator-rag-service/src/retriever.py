@@ -16,7 +16,10 @@ from typing import List, Optional, Any
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+try:
+    from langchain_chroma import Chroma
+except ImportError:
+    from langchain_community.vectorstores import Chroma
 from langchain_community.retrievers import BM25Retriever
 from sentence_transformers import CrossEncoder
 

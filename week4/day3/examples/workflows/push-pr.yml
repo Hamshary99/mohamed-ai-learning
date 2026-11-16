@@ -1,0 +1,52 @@
+name: Push & PR Test Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - "release/**"
+    paths:
+      - "studentgator-rag-service/**"
+      - ".github/workflows/push-pr.yml"
+
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+    paths:
+      - "studentgator-rag-service/**"
+      - ".github/workflows/push-pr.yml"
+
+# Workflow-level environment variables shared across all jobs/steps
+env:
+  SERVICE_DIR: "studentgator-rag-service"
+  PYTHON_VERSION: "3.11"
+  LANGSMITH_TRACING: "false"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install test & RAG ingestion dependencies
+        run: |
+          pip install pytest pydantic pydantic-settings \
+            langchain-core langchain-community langchain-text-splitters \
+            langgraph pypdf
+
+      - name: Run StudentGator unit & RAG ingestion tests
+        run: pytest $SERVICE_DIR/tests/test_service.py -v
+
+      # Conditional step: only runs when code is pushed directly/merged to main (skipped on PRs)
+      - name: Post-merge confirmation on main
+        if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+        run: echo "All tests passed on main (commit ${{ github.sha }} by ${{ github.actor }})!"

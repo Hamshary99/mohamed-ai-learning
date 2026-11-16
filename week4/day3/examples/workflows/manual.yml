@@ -1,0 +1,71 @@
+name: Manual Release Workflow
+
+# Manual trigger: adds "Run workflow" button in GitHub UI (or via `gh workflow run`)
+on:
+  workflow_dispatch:
+    inputs:
+      # Dropdown choice input for target environment
+      environment:
+        description: "Choose environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+      # Boolean checkbox input to toggle pre-deploy test verification
+      verify_rag_ingestion:
+        description: "Run RAG ingestion & unit tests before deploying"
+        required: true
+        default: true
+        type: boolean
+
+# 1. Workflow-level env: available to every job and step in this file
+env:
+  SERVICE_DIR: "studentgator-rag-service"
+  LANGSMITH_TRACING: "false"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # 2. Job-level env: available to all steps inside 'deploy'
+    env:
+      TARGET_ENV: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      # Conditional 'if:' using dynamic input expression
+      - name: Run RAG ingestion & unit tests
+        if: ${{ inputs.verify_rag_ingestion == true }}
+        run: |
+          pip install pytest pydantic pydantic-settings \
+            langchain-core langchain-community langchain-text-splitters \
+            langgraph pypdf
+          pytest $SERVICE_DIR/tests/test_service.py -v
+
+      # Conditional 'if:' checking multiple expressions (only runs when deploying to production)
+      - name: Production gate check
+        if: ${{ inputs.environment == 'production' && github.ref_name == 'main' }}
+        run: echo "Production release approved by ${{ github.actor }} on commit ${{ github.sha }}"
+
+      # 3. Step-level env + dynamic contexts
+      - name: Deploy application
+        env:
+          RELEASE_TAG: "v1.0-${{ github.run_number }}"
+        run: |
+          echo "Deploying $SERVICE_DIR ($RELEASE_TAG) to $TARGET_ENV..."
+
+      # Built-in status function: only runs if an earlier step failed
+      - name: Alert on failure
+        if: ${{ failure() }}
+        run: echo "Deployment failed on branch ${{ github.ref_name }}"

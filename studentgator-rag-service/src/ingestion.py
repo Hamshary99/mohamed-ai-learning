@@ -16,15 +16,17 @@ Pre-builds the database so the FastAPI server boots in < 0.2 seconds without re-
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+try:
+    from langchain_chroma import Chroma
+except ImportError:
+    from langchain_community.vectorstores import Chroma
 
 from src.config import settings
 from src.metadata import metadata_registry
-from src.retriever import get_default_embedder
 
 
 def chunk_and_enrich_documents(
@@ -68,7 +70,8 @@ def chunk_and_enrich_documents(
 def build_persistent_vectorstore(
     persist_directory: Optional[str] = None,
     collection_name: Optional[str] = None,
-    force_rebuild: bool = False
+    force_rebuild: bool = False,
+    embedder: Optional[Any] = None,
 ) -> Chroma:
     """
     Builds or updates the persistent ChromaDB collection on disk.
@@ -76,7 +79,11 @@ def build_persistent_vectorstore(
     """
     persist_dir = persist_directory or settings.chroma_persist_directory
     base_coll = collection_name or settings.chroma_collection_name
-    embeddings, provider = get_default_embedder()
+    if embedder is not None:
+        embeddings, provider = embedder, "custom"
+    else:
+        from src.retriever import get_default_embedder
+        embeddings, provider = get_default_embedder()
     coll_name = f"{base_coll}_{provider}"
 
     persist_path = Path(persist_dir).resolve()
@@ -116,6 +123,7 @@ def get_or_load_vectorstore(
     base_coll = collection_name or settings.chroma_collection_name
     persist_path = Path(persist_dir).resolve()
 
+    from src.retriever import get_default_embedder
     embeddings, provider = get_default_embedder()
     coll_name = f"{base_coll}_{provider}"
 

@@ -1,0 +1,30 @@
+name: Workflow Commands & Annotations
+
+on:
+  workflow_dispatch:
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    steps:
+      # Each 'run:' step executes in its own isolated shell.
+      # A normal bash variable (`deprecated=true`) disappears when this step ends!
+      # Writing to `$GITHUB_ENV` persists the variable so subsequent steps can read it.
+      - name: Step 1 - Set variable and pass it to the next step
+        run: |
+          echo "deprecated=true" >> $GITHUB_ENV
+
+      - name: Step 2 - Read variable from Step 1 and emit annotation
+        run: |
+          if [[ "$deprecated" == "true" ]]; then
+            echo "::warning file=studentgator-rag-service/src/schemas.py,line=54,title=Deprecation Notice::deprecated function found (passed from Step 1 via GITHUB_ENV)"
+          fi
+
+      - name: Step 3 - Group logs and emit notice annotation
+        run: |
+          echo "::group::StudentGator RAG Diagnostic Details"
+          echo "Checking PDF manifest..."
+          echo "Checking ChromaDB config..."
+          echo "::endgroup::"
+
+          echo "::notice title=Diagnostics Complete::All RAG configuration checks finished."

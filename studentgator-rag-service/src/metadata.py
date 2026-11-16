@@ -164,7 +164,7 @@ class MetadataManager:
         """
         Constructs a structured ChromaDB relational pre-filter dict.
         Supports single filters or compound ($and) filters.
-        
+
         Example outputs:
             {"domain_category": {"$eq": "eu_germany_admissions"}}
             {"$and": [{"country": {"$eq": "Germany"}}, {"domain_category": {"$eq": "eu_germany_admissions"}}]}

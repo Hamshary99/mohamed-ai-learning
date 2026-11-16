@@ -29,12 +29,9 @@ class OfflineFallbackChatModel(BaseChatModel):
 
     def _generate(self, messages: List[BaseMessage], stop: Optional[List[str]] = None, **kwargs) -> ChatResult:
         context = ""
-        user_query = ""
         for m in messages:
             if isinstance(m, SystemMessage) and "INSTITUTIONAL CONTEXT:" in m.content:
                 context = m.content.split("INSTITUTIONAL CONTEXT:")[1].strip()
-            elif isinstance(m, HumanMessage):
-                user_query = m.content
 
         reply_parts = [
             "[Notice: Running in Local Offline Fallback Mode - Cloud LLM Key Unavailable]",

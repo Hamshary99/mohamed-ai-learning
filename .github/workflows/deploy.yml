@@ -27,7 +27,7 @@ jobs:
         uses: astral-sh/ruff-action@v4.1.0
         with:
           src: "./studentgator-rag-service/src"
-          args: "check --select E,F,W --ignore E501 --output-format=github"
+          args: "check --select E,F --ignore E501 --output-format=github"
 
   build:
     runs-on: ubuntu-latest

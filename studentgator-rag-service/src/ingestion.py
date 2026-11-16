@@ -14,7 +14,6 @@ Pre-builds the database so the FastAPI server boots in < 0.2 seconds without re-
 """
 
 import os
-import sys
 from pathlib import Path
 from typing import Any, List, Optional
 
@@ -90,7 +89,7 @@ def build_persistent_vectorstore(
     os.makedirs(persist_path, exist_ok=True)
 
     # 1. Load all raw PDF documents from data/
-    print(f"[Ingestion] Scanning documents via metadata registry...")
+    print("[Ingestion] Scanning documents via metadata registry...")
     raw_docs = metadata_registry.load_documents()
 
     # 2. Split and enrich chunks

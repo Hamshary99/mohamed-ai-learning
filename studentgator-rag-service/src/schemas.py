@@ -66,7 +66,7 @@ Chatrequest = ChatRequest
 #     page: Optional[int] = Field(default=None, description="Page number where the cited text was found")
 #     domain_category: Optional[str] = Field(default=None, description="Categorical domain tag of the source")
 #     relevance_score: Optional[float] = Field(default=None, description="Cross-encoder relevance score")
-# 
+#
 # 
 # class ChatResponse(BaseModel):
 #     """

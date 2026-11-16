@@ -14,11 +14,10 @@ from typing import AsyncGenerator
 # Ensure project root is in sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import StreamingResponse, HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage
-from langchain_core.documents import Document
 
 from src.schemas import ChatRequest, HealthResponse
 from src.retriever import AdvancedRetrieverService

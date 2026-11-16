@@ -24,7 +24,7 @@ def build_studentgator_graph(retriever_service: AdvancedRetrieverService, llm=No
     Wires nodes, conditional edges, and persistence into a compiled LangGraph workflow.
 
     Visual Data Flow:
-    
+
     [ START ] ──> [ Node: 'classify' ]
                          │
                          ▼ (Conditional Edge: route_by_intent)

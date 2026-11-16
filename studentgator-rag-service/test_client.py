@@ -46,7 +46,7 @@ def stream_message(message: str, thread_id: str):
                         print(event["token"], end="", flush=True)
                     elif "intent" in event:
                         intent_raw = event.get("intent", "")
-                        label = event.get("display") or ("Cooking response..." if intent_raw == "institutional_rag" else "Thinking...")
+                        label = event.get("display") or ("cooking..." if intent_raw == "institutional_rag" else "thinking...")
                         print(f"[{label}] ", end="", flush=True)
                     elif "sources" in event:
                         sources_buffer = event["sources"]

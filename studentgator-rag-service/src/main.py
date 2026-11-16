@@ -87,7 +87,7 @@ async def event_stream_generator(query: str, thread_id: str, request: Request) -
 
     try:
         # 1. Initial SSE handshake event
-        yield f"event: start\ndata: {json.dumps({'status': 'thinking', 'message': 'Thinking & cooking...', 'query': query})}\n\n"
+        yield f"event: start\ndata: {json.dumps({'status': 'thinking', 'message': 'thinking...', 'query': query})}\n\n"
 
         streamed_any_token = False
 
@@ -104,7 +104,7 @@ async def event_stream_generator(query: str, thread_id: str, request: Request) -
             if event_type in ("on_node_end", "on_chain_end") and event.get("name") == "classify":
                 intent = (event.get("data") or {}).get("output", {}).get("intent")
                 if intent:
-                    display_label = "Cooking response..." if intent == "institutional_rag" else ("Thinking..." if intent == "greeting" else "Evaluating...")
+                    display_label = "cooking..." if intent == "institutional_rag" else ("thinking..." if intent == "greeting" else "evaluating...")
                     yield f"event: route\ndata: {json.dumps({'intent': intent, 'display': display_label, 'status': 'cooking' if intent == 'institutional_rag' else 'thinking'})}\n\n"
 
             # Stream retrieved sources event (for terminal logging in clients)

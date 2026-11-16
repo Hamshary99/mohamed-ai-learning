@@ -366,22 +366,23 @@
             // Dynamic Catchy Status Indicator
             const statusPill = document.createElement("div");
             statusPill.className = "status-pill";
-            statusPill.innerHTML = '<span class="status-spinner"></span><span class="status-text">Thinking...</span>';
+            statusPill.innerHTML = '<span class="status-spinner"></span><span class="status-text">thinking...</span>';
             bubble.appendChild(statusPill);
 
             const catchyPhrases = [
-                "Thinking...",
-                "Cooking...",
-                "Searching institutional knowledge...",
-                "Checking visa & admissions rules...",
-                "Cooking up the answer..."
+                "thinking...",
+                "cooking...",
+                "loading...",
+                "buffering...",
+                "brewing...",
+                "pondering..."
             ];
             let phraseIdx = 0;
             const phraseTimer = setInterval(() => {
                 phraseIdx = (phraseIdx + 1) % catchyPhrases.length;
                 const textSpan = statusPill.querySelector(".status-text");
                 if (textSpan) textSpan.innerText = catchyPhrases[phraseIdx];
-            }, 850);
+            }, 500);
 
             const contentSpan = document.createElement("div");
             contentSpan.className = "message-content";
@@ -430,16 +431,6 @@
                             const parsed = JSON.parse(dataStr);
                             if (parsed.intent) {
                                 currentIntent = parsed.intent;
-                                const textSpan = statusPill.querySelector(".status-text");
-                                if (textSpan) {
-                                    if (parsed.intent === "institutional_rag") {
-                                        textSpan.innerText = "Cooking answer from knowledge base...";
-                                    } else if (parsed.intent === "greeting") {
-                                        textSpan.innerText = "Thinking of greeting...";
-                                    } else {
-                                        textSpan.innerText = "Evaluating scope...";
-                                    }
-                                }
                             } else if (parsed.token) {
                                 if (statusPill.parentNode) {
                                     clearInterval(phraseTimer);

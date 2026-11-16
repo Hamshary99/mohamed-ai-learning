@@ -76,7 +76,7 @@ class Settings(BaseSettings):
     # 4. Model Hyperparameters
     default_model: str = Field(default="gemini-3.5-flash", description="Primary chat model for answers & routing")
     default_temperature: float = Field(default=0.0, description="Temperature for deterministic factual RAG")
-    embedding_model: str = Field(default="models/gemini-embedding-001", description="Dense embedding model")
+    embedding_model: str = Field(default="all-MiniLM-L6-v2", description="Dense embedding model")
     reranker_model: str = Field(default="cross-encoder/ms-marco-MiniLM-L-6-v2", description="HuggingFace Cross-Encoder model")
 
     # 5. Chunking & Retrieval Parameters

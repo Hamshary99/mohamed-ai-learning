@@ -7,7 +7,7 @@ Pydantic validates and sanitizes payloads at the gateway, returning HTTP 422
 Unprocessable Entity before any model tokens or database queries are executed.
 """
 
-from typing import List, Optional
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 

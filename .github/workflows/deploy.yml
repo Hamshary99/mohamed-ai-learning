@@ -58,7 +58,7 @@ jobs:
       - name: Run unit tests
         run: |
           pip install pytest pydantic pydantic-settings langchain-core langchain-community langchain-text-splitters langgraph
-          pytest studentgator-rag-service/tests/test_service.py -k "not rag" -v
+          pytest studentgator-rag-service/tests/test_service.py -k "not test_rag" -v
 
 
   # 2B. Also waits for 'build', so it runs in parallel with 'test'
@@ -71,7 +71,7 @@ jobs:
       - name: Run RAG ingestion tests
         run: |
           pip install pytest pydantic pydantic-settings langchain-core langchain-community langchain-text-splitters langgraph pypdf
-          pytest studentgator-rag-service/tests/test_service.py -k "rag" -v
+          pytest studentgator-rag-service/tests/test_service.py -k "test_rag" -v
 
   build-and-push:
     name: Build & Push to GitHub Container Registry

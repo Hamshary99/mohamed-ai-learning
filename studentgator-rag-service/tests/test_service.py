@@ -29,7 +29,7 @@ from src.graph.router import route_by_intent
 from src.ingestion import chunk_and_enrich_documents, build_persistent_vectorstore
 
 
-class TestStudentGatorRAGService(unittest.TestCase):
+class TestStudentGatorService(unittest.TestCase):
     """CI Unit & RAG Ingestion Test Suite for StudentGator RAG Service."""
 
     # =========================================================================

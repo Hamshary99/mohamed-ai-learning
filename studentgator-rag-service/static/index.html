@@ -146,6 +146,46 @@
         .badge-greeting { background-color: var(--badge-greeting); color: #fff; }
         .badge-out_of_scope { background-color: var(--badge-scope); color: #fff; }
 
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            font-weight: 500;
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        .status-spinner {
+            width: 10px;
+            height: 10px;
+            border: 2px solid #38bdf8;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 1; }
+        }
+
+        .message-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
         .suggestions {
             display: flex;
             gap: 8px;
@@ -323,11 +363,36 @@
             chatContainer.appendChild(advisorRow);
             scrollToBottom();
 
+            // Dynamic Catchy Status Indicator
+            const statusPill = document.createElement("div");
+            statusPill.className = "status-pill";
+            statusPill.innerHTML = '<span class="status-spinner"></span><span class="status-text">Thinking...</span>';
+            bubble.appendChild(statusPill);
+
+            const catchyPhrases = [
+                "Thinking...",
+                "Cooking...",
+                "Searching institutional knowledge...",
+                "Checking visa & admissions rules...",
+                "Cooking up the answer..."
+            ];
+            let phraseIdx = 0;
+            const phraseTimer = setInterval(() => {
+                phraseIdx = (phraseIdx + 1) % catchyPhrases.length;
+                const textSpan = statusPill.querySelector(".status-text");
+                if (textSpan) textSpan.innerText = catchyPhrases[phraseIdx];
+            }, 850);
+
+            const contentSpan = document.createElement("div");
+            contentSpan.className = "message-content";
+            bubble.appendChild(contentSpan);
+
             const cursor = document.createElement("span");
             cursor.className = "cursor";
             bubble.appendChild(cursor);
 
             let streamedContent = "";
+            let currentIntent = "institutional_rag";
 
             try {
                 const response = await fetch("/api/v1/chat", {
@@ -364,20 +429,41 @@
                         try {
                             const parsed = JSON.parse(dataStr);
                             if (parsed.intent) {
-                                const badge = document.createElement("div");
-                                badge.className = `badge badge-${parsed.intent}`;
-                                badge.innerText = parsed.intent.replace(/_/g, ' ');
-                                bubble.insertBefore(badge, cursor);
+                                currentIntent = parsed.intent;
+                                const textSpan = statusPill.querySelector(".status-text");
+                                if (textSpan) {
+                                    if (parsed.intent === "institutional_rag") {
+                                        textSpan.innerText = "Cooking answer from knowledge base...";
+                                    } else if (parsed.intent === "greeting") {
+                                        textSpan.innerText = "Thinking of greeting...";
+                                    } else {
+                                        textSpan.innerText = "Evaluating scope...";
+                                    }
+                                }
                             } else if (parsed.token) {
+                                if (statusPill.parentNode) {
+                                    clearInterval(phraseTimer);
+                                    statusPill.remove();
+
+                                    const badge = document.createElement("div");
+                                    badge.className = `badge badge-${currentIntent}`;
+                                    if (currentIntent === "institutional_rag") {
+                                        badge.innerText = "Verified Knowledge Base";
+                                    } else if (currentIntent === "greeting") {
+                                        badge.innerText = "Direct Greeting";
+                                    } else {
+                                        badge.innerText = "Out of Scope";
+                                    }
+                                    bubble.insertBefore(badge, contentSpan);
+                                }
                                 streamedContent += parsed.token;
-                                cursor.remove();
-                                bubble.innerText = streamedContent;
-                                bubble.appendChild(cursor);
+                                contentSpan.innerText = streamedContent;
                                 scrollToBottom();
                             } else if (parsed.error) {
+                                clearInterval(phraseTimer);
+                                if (statusPill.parentNode) statusPill.remove();
                                 streamedContent += `\n[Error]: ${parsed.error}`;
-                                cursor.remove();
-                                bubble.innerText = streamedContent;
+                                contentSpan.innerText = streamedContent;
                             }
                         } catch (err) {
                             // Non-json SSE data line
@@ -385,14 +471,18 @@
                     }
                 }
 
+                clearInterval(phraseTimer);
+                if (statusPill.parentNode) statusPill.remove();
                 cursor.remove();
-                if (!streamedContent && bubble.innerText === "") {
-                    bubble.innerText = "No response generated.";
+                if (!streamedContent && contentSpan.innerText === "") {
+                    contentSpan.innerText = "No response generated.";
                 }
 
             } catch (error) {
+                clearInterval(phraseTimer);
+                if (statusPill.parentNode) statusPill.remove();
                 cursor.remove();
-                bubble.innerText = `Could not connect to service: ${error.message}`;
+                contentSpan.innerText = `Could not connect to service: ${error.message}`;
             } finally {
                 inputBox.disabled = false;
                 sendBtn.disabled = false;

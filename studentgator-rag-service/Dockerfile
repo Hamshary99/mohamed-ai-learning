@@ -11,13 +11,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install lightweight CPU-only PyTorch (~180MB instead of the 540MB CUDA version)
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --timeout 100 --retries 10 torch --index-url https://download.pytorch.org/whl/cpu
+# Install lightweight CPU-only PyTorch using BuildKit cache mount
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install --timeout 100 --retries 10 torch --index-url https://download.pytorch.org/whl/cpu
 
-# Copy requirements and install remaining libraries (sentence-transformers will reuse CPU torch)
+# Copy requirements and install remaining libraries with cache mount
 COPY requirements.txt .
-RUN pip install --no-cache-dir --timeout 100 --retries 10 -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --timeout 100 --retries 10 -r requirements.txt
 
 
 # Stage 2: runner - minimal production runtime
@@ -39,15 +41,13 @@ COPY --from=builder /opt/venv /opt/venv
 # Run as non-root user for security (container best practice)
 RUN addgroup --system appgroup && adduser --system --home /home/appuser --group appuser && \
     mkdir -p /tmp/huggingface /tmp/torch && \
-    chown -R appuser:appgroup /tmp/huggingface /tmp/torch
+    chown -R appuser:appgroup /tmp/huggingface /tmp/torch /app
 
-# Copy app code, static chat UI, and local vector DB data
-COPY src/ ./src/
-COPY data/ ./data/
-COPY static/ ./static/
+# Copy app code, static chat UI, and vector DB directly with appuser ownership (no duplicate layer)
+COPY --chown=appuser:appgroup src/ ./src/
+COPY --chown=appuser:appgroup data/ ./data/
+COPY --chown=appuser:appgroup static/ ./static/
 
-# Let appuser own /app so Chroma can read/write embeddings
-RUN chown -R appuser:appgroup /app
 USER appuser
 
 EXPOSE 8080
